@@ -272,6 +272,38 @@ def _subsample(samples: list[Sample], max_samples: Optional[int], seed: int) -> 
     return rng.sample(samples, max_samples)
 
 
+def _cap_per_class(samples: list[Sample], max_per_class: Optional[int], seed: int) -> list[Sample]:
+    if max_per_class is None:
+        return samples
+    rng = random.Random(seed)
+    out: list[Sample] = []
+    for y in (0, 1):
+        bucket = [s for s in samples if s.label == y]
+        if len(bucket) > max_per_class:
+            bucket = rng.sample(bucket, max_per_class)
+        out.extend(bucket)
+    rng.shuffle(out)
+    return out
+
+
+def _cifake_train_val(cfg: dict[str, Any]) -> tuple[list[Sample], list[Sample]]:
+    """Carve val from CIFAKE train so the official test split stays untouched."""
+    train_pool = load_cifake(resolve_path(cfg, "cifake"), "train")
+    rng = random.Random(int(cfg.get("seed", 42)))
+    real = [s for s in train_pool if s.label == 0]
+    ai = [s for s in train_pool if s.label == 1]
+    rng.shuffle(real)
+    rng.shuffle(ai)
+    frac = float(cfg["train"].get("val_fraction", 0.1))
+    n_val_real = max(1, int(len(real) * frac)) if real else 0
+    n_val_ai = max(1, int(len(ai) * frac)) if ai else 0
+    val = real[:n_val_real] + ai[:n_val_ai]
+    train = real[n_val_real:] + ai[n_val_ai:]
+    rng.shuffle(val)
+    rng.shuffle(train)
+    return train, val
+
+
 def collect_samples(cfg: dict[str, Any], split: str) -> list[Sample]:
     """Build the sample list for `split` in {train, val, test} from config."""
     name = cfg["dataset"]["name"]
@@ -297,39 +329,67 @@ def collect_samples(cfg: dict[str, Any], split: str) -> list[Sample]:
         # WildFake dumps are usually not pre-split; we split later.
         return load_wildfake(resolve_path(cfg, "wildfake"), exclude_tokens)
 
+    def maybe_sid_local() -> list[Sample]:
+        """Combined mode never streams the 210k SID_Set dump from Hugging Face."""
+        root = resolve_path(cfg, "sid_set")
+        if not (root.is_dir() and any(p.is_dir() or p.is_file() for p in root.iterdir() if p.name != ".gitkeep")):
+            raise FileNotFoundError(
+                f"No local SID_Set dump at {root}. Run: python scripts/download_sidset.py"
+            )
+        return load_sid_set_local(root, split, include_tampered)
+
     if name == "cifake":
         # Official test split is held out. Val is carved from train so we never
         # tune on the test set.
         if split == "test":
             samples = maybe_cifake()
             return _subsample(samples, max_samples, seed)
-        train_pool = load_cifake(resolve_path(cfg, "cifake"), "train")
-        rng = random.Random(seed)
-        real = [s for s in train_pool if s.label == 0]
-        ai = [s for s in train_pool if s.label == 1]
-        rng.shuffle(real)
-        rng.shuffle(ai)
-        frac = float(cfg["train"].get("val_fraction", 0.1))
-        n_val_real = max(1, int(len(real) * frac)) if real else 0
-        n_val_ai = max(1, int(len(ai) * frac)) if ai else 0
-        val = real[:n_val_real] + ai[:n_val_ai]
-        train = real[n_val_real:] + ai[n_val_ai:]
-        rng.shuffle(val)
-        rng.shuffle(train)
-        samples = train if split == "train" else val
+        train_split, val_split = _cifake_train_val(cfg)
+        samples = train_split if split == "train" else val_split
         return _subsample(samples, max_samples, seed)
     elif name == "sid_set":
         samples = maybe_sid()
     elif name == "wildfake":
         samples = maybe_wildfake()
     elif name == "combined":
-        for loader in (maybe_cifake, maybe_sid, maybe_wildfake):
-            try:
-                samples.extend(loader())
-            except FileNotFoundError as exc:
-                print(f"[data] skipping a combined source: {exc}")
+        # Keep official splits: CIFAKE train/test, SID_Set train/validation.
+        # Do not pool-then-reshuffle (that mixed CIFAKE test into train).
+        cifake_cap = cfg["dataset"].get("combined_cifake_max_per_class")
+        cifake_cap = int(cifake_cap) if cifake_cap is not None else None
+        try:
+            if split == "test":
+                cifake_part = load_cifake(resolve_path(cfg, "cifake"), "test")
+            else:
+                train_split, val_split = _cifake_train_val(cfg)
+                cifake_part = train_split if split == "train" else val_split
+            samples.extend(_cap_per_class(cifake_part, cifake_cap, seed + 1))
+        except FileNotFoundError as exc:
+            print(f"[data] skipping CIFAKE in combined: {exc}")
+        try:
+            # SID validation is the high-res photo hold-out. Do not reuse it as test.
+            if split != "test":
+                samples.extend(maybe_sid_local())
+        except FileNotFoundError as exc:
+            print(f"[data] skipping SID_Set in combined: {exc}")
+        try:
+            wf = maybe_wildfake()
+            rng = random.Random(seed)
+            shuffled = wf[:]
+            rng.shuffle(shuffled)
+            n = len(shuffled)
+            n_val = max(1, int(n * float(cfg["train"].get("val_fraction", 0.1))))
+            n_test = max(1, int(n * 0.15))
+            bucket = {
+                "test": shuffled[:n_test],
+                "val": shuffled[n_test : n_test + n_val],
+                "train": shuffled[n_test + n_val :],
+            }[split]
+            samples.extend(bucket)
+        except FileNotFoundError as exc:
+            print(f"[data] skipping WildFake in combined: {exc}")
         if not samples:
             raise FileNotFoundError("combined dataset is empty — point config.yaml at at least one dump.")
+        return _subsample(samples, max_samples, seed)
     else:
         raise ValueError(f"Unknown dataset.name: {name}")
 

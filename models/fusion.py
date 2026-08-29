@@ -35,6 +35,8 @@ class AIGCDetector(nn.Module):
     def __init__(self, cfg: dict[str, Any]) -> None:
         super().__init__()
         model_cfg = cfg["model"]
+        self.logit_bias = float(cfg.get("thresholds", {}).get("logit_bias", 0.0))
+        self.temperature = max(1e-3, float(cfg.get("thresholds", {}).get("temperature", 1.0)))
         self.use_frequency_branch = bool(model_cfg.get("use_frequency_branch", True))
         self.semantic = SemanticBranch(
             clip_name=model_cfg.get("clip_name", "openai/clip-vit-base-patch32"),
@@ -68,9 +70,14 @@ class AIGCDetector(nn.Module):
             logit = self.fusion(sem_emb, freq_emb)
         else:
             logit = sem_logit
+        # Inference-only temperature/bias. Training sees unbiased logits.
+        if self.training:
+            pred_logit = logit
+        else:
+            pred_logit = (logit + self.logit_bias) / self.temperature
         return {
             "logit": logit,
-            "pred": torch.sigmoid(logit),
+            "pred": torch.sigmoid(pred_logit),
             "semantic_emb": sem_emb,
             "semantic_logit": sem_logit,
             "semantic_score": torch.sigmoid(sem_logit),

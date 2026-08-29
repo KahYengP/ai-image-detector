@@ -32,8 +32,8 @@ def run_epoch(
     model: AIGCDetector,
     loader: DataLoader,
     device: torch.device,
-    criterion: nn.Module,
     aux_weight: float,
+    real_class_weight: float,
     optimizer: torch.optim.Optimizer | None,
 ) -> dict:
     train = optimizer is not None
@@ -50,11 +50,23 @@ def run_epoch(
             image_01 = batch["image_01"].to(device)
             labels = batch["label"].to(device)
             out = model(pixel_values, image_01)
-            loss = criterion(out["logit"], labels)
+            # Weight real examples more so false positives (real called AI) cost extra.
+            sample_w = torch.where(
+                labels < 0.5,
+                torch.full_like(labels, real_class_weight),
+                torch.ones_like(labels),
+            )
+            loss = nn.functional.binary_cross_entropy_with_logits(
+                out["logit"], labels, weight=sample_w
+            )
             if aux_weight > 0:
-                loss = loss + aux_weight * criterion(out["semantic_logit"], labels)
+                loss = loss + aux_weight * nn.functional.binary_cross_entropy_with_logits(
+                    out["semantic_logit"], labels, weight=sample_w
+                )
                 if out["frequency_logit"] is not None:
-                    loss = loss + aux_weight * criterion(out["frequency_logit"], labels)
+                    loss = loss + aux_weight * nn.functional.binary_cross_entropy_with_logits(
+                        out["frequency_logit"], labels, weight=sample_w
+                    )
             if train:
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
@@ -114,6 +126,10 @@ def main() -> None:
     print(f"train {dataset_summary(train_ds)}")
     print(f"val   {dataset_summary(val_ds)}")
     print(f"test  {dataset_summary(test_ds)}")
+    from collections import Counter
+
+    print("train sources", dict(Counter(s.source for s in train_ds.samples)))
+    print("val sources  ", dict(Counter(s.source for s in val_ds.samples)))
 
     workers = int(cfg["train"].get("num_workers") or 0)
     pin = device.type == "cuda"
@@ -140,13 +156,13 @@ def main() -> None:
     if total >= 2_000_000_000:
         raise SystemExit("Model exceeds the 2B parameter limit.")
 
-    criterion = nn.BCEWithLogitsLoss()
     optimizer = torch.optim.AdamW(
         (p for p in model.parameters() if p.requires_grad),
         lr=float(cfg["train"]["lr"]),
         weight_decay=float(cfg["train"]["weight_decay"]),
     )
     aux_weight = float(cfg["model"].get("aux_loss_weight", 0.3))
+    real_w = float(cfg["train"].get("real_class_weight", 1.0))
     best_auc = -1.0
     ckpt_path = Path(args.output) if args.output else Path(cfg["paths"]["checkpoint"])
     if not ckpt_path.is_absolute():
@@ -155,8 +171,8 @@ def main() -> None:
 
     history = []
     for epoch in range(1, int(cfg["train"]["epochs"]) + 1):
-        train_m = run_epoch(model, train_loader, device, criterion, aux_weight, optimizer)
-        val_m = run_epoch(model, val_loader, device, criterion, aux_weight, None)
+        train_m = run_epoch(model, train_loader, device, aux_weight, real_w, optimizer)
+        val_m = run_epoch(model, val_loader, device, aux_weight, real_w, None)
         row = {"epoch": epoch, "train": train_m, "val": val_m}
         history.append(row)
         print(

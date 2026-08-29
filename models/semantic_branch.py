@@ -29,12 +29,21 @@ class SemanticBranch(nn.Module):
         # Linear projection down to a 512-d embedding (CLIP's native contrastive dim).
         self.proj = nn.Linear(hidden, 512)
         self.score_head = nn.Linear(512, 1)
+        # "last_block" adapts CLIP to the training dump (can overfit CIFAR-looking
+        # reals and then call ordinary photographs AI). "none" keeps CLIP frozen
+        # (UnivFD-style) so natural photos stay in the real region.
         if freeze_except_last_block:
             self.freeze_except_last_block()
+        else:
+            self.freeze_all_clip()
 
     def _tower(self):
         # transformers v4 nested the ViT under `.vision_model`; v5 made CLIPVisionModel the tower itself.
         return getattr(self.vision, "vision_model", self.vision)
+
+    def freeze_all_clip(self) -> None:
+        for param in self.vision.parameters():
+            param.requires_grad = False
 
     def freeze_except_last_block(self) -> None:
         """Keep pretrained features; only adapt the last block + our heads."""

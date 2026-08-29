@@ -1,0 +1,195 @@
+{
+  "thresholds": {
+    "likely_real_max": 0.28,
+    "likely_ai_min": 0.7,
+    "logit_bias": -0.25,
+    "temperature": 0.9
+  },
+  "val": {
+    "n": 360,
+    "auc": 0.9617901234567902,
+    "ece": 0.03288199333966865,
+    "mean_pred_real": 0.17905999005846415,
+    "mean_pred_ai": 0.8723399817751856,
+    "fn_ai_called_real": 0.03888888888888889,
+    "fp_real_called_ai": 0.07777777777777778,
+    "ai_recall_hard": 0.8777777777777778,
+    "ai_in_edited_band": 0.08333333333333333,
+    "real_in_edited_band": 0.16111111111111112
+  },
+  "cifake_test": {
+    "n": 600,
+    "auc": 0.8988111111111111,
+    "spearman": 0.602932008144467,
+    "fn_ai_called_real": 0.043333333333333335,
+    "fp_real_called_ai": 0.14666666666666667,
+    "ai_recall_hard": 0.7533333333333333,
+    "ai_in_edited_band": 0.20333333333333334,
+    "real_in_edited_band": 0.2833333333333333
+  },
+  "gates": {
+    "spearman_pred_vs_label": {
+      "value": 0.7240210186806997,
+      "min": 0.55,
+      "ok": true
+    },
+    "mean_ai_above_mean_real": {
+      "value": 0.6932799917167214,
+      "min": 0.08,
+      "ok": true
+    },
+    "fn_ai_called_real": {
+      "value": 0.03888888888888889,
+      "max": 0.12,
+      "ok": true
+    },
+    "fp_real_called_ai": {
+      "value": 0.07777777777777778,
+      "max": 0.18,
+      "ok": true
+    },
+    "auc": {
+      "value": 0.9617901234567902,
+      "min": 0.9,
+      "ok": true
+    }
+  },
+  "test_images": [
+    {
+      "image": "image1.jpg",
+      "pred": 0.137771,
+      "tier": "likely_real",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image10.jpg",
+      "pred": 0.141642,
+      "tier": "likely_real",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image11.jpg",
+      "pred": 0.365494,
+      "tier": "filters_or_edited",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image12.jpg",
+      "pred": 0.030236,
+      "tier": "likely_real",
+      "explanation": "Semantic content looks photographic; frequency branch is less sure. Treat as a filtered or edited photograph.",
+      "fired": []
+    },
+    {
+      "image": "image13.png",
+      "pred": 0.940254,
+      "tier": "likely_ai_generated",
+      "explanation": "Semantic cues suggest AI generation; the frequency spectrum does not show a strong upsampling signature.",
+      "fired": []
+    },
+    {
+      "image": "image14.jpg",
+      "pred": 0.993514,
+      "tier": "likely_ai_generated",
+      "explanation": "Semantic cues suggest AI generation; the frequency spectrum does not show a strong upsampling signature.",
+      "fired": []
+    },
+    {
+      "image": "image15.png",
+      "pred": 0.481613,
+      "tier": "filters_or_edited",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image16.jpg",
+      "pred": 0.980356,
+      "tier": "likely_ai_generated",
+      "explanation": "Semantic cues suggest AI generation; the frequency spectrum does not show a strong upsampling signature.",
+      "fired": []
+    },
+    {
+      "image": "image17.png",
+      "pred": 0.694837,
+      "tier": "filters_or_edited",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits). Visual/metadata cues: over-smoothed skin texture.",
+      "fired": [
+        "skin_texture"
+      ]
+    },
+    {
+      "image": "image18.jpg",
+      "pred": 0.668983,
+      "tier": "filters_or_edited",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image19.png",
+      "pred": 0.952515,
+      "tier": "likely_ai_generated",
+      "explanation": "Semantic cues suggest AI generation; the frequency spectrum does not show a strong upsampling signature.",
+      "fired": []
+    },
+    {
+      "image": "image2.jpg",
+      "pred": 0.148435,
+      "tier": "likely_real",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image3.jpg",
+      "pred": 0.540395,
+      "tier": "filters_or_edited",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image4.png",
+      "pred": 0.096408,
+      "tier": "likely_real",
+      "explanation": "Semantic content looks photographic; frequency branch is less sure. Treat as a filtered or edited photograph.",
+      "fired": []
+    },
+    {
+      "image": "image5.jpg",
+      "pred": 0.925309,
+      "tier": "likely_ai_generated",
+      "explanation": "Semantic cues suggest AI generation; the frequency spectrum does not show a strong upsampling signature.",
+      "fired": []
+    },
+    {
+      "image": "image6.jpg",
+      "pred": 0.832914,
+      "tier": "likely_ai_generated",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image7.png",
+      "pred": 0.240884,
+      "tier": "likely_real",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image8.jpg",
+      "pred": 0.580746,
+      "tier": "filters_or_edited",
+      "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+      "fired": []
+    },
+    {
+      "image": "image9.jpg",
+      "pred": 0.006211,
+      "tier": "likely_real",
+      "explanation": "Semantic content looks photographic; frequency branch is less sure. Treat as a filtered or edited photograph.",
+      "fired": []
+    }
+  ],
+  "passed": true
+}

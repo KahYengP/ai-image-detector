@@ -12,7 +12,10 @@ paths:
 
 dataset:
   # cifake | sid_set | wildfake | combined
-  name: cifake
+  name: combined
+  # CIFAKE is 32x32. In combined mode, cap it so high-res SID_Set photos
+  # (ordinary camera stills) are the majority of the "real" class.
+  combined_cifake_max_per_class: 300
   image_size: 224
   # When the source image is larger than image_size, crop instead of downsampling
   # so high-frequency generator artifacts are not destroyed.
@@ -31,20 +34,32 @@ dataset:
 
 model:
   clip_name: openai/clip-vit-base-patch32
-  freeze_except_last_block: true
+  # false = freeze all CLIP weights. Fine-tuning the last block on CIFAKE
+  # made ordinary photographs look "not real" (high false-positive rate).
+  freeze_except_last_block: false
   use_frequency_branch: true
   dropout: 0.3
-  # Auxiliary BCE on each branch so semantic_score / frequency_score are calibrated.
   aux_loss_weight: 0.3
 
 train:
   epochs: 3
-  batch_size: 16
+  batch_size: 8
   lr: 1.0e-4
   weight_decay: 0.01
   num_workers: 0
   max_samples: null
   val_fraction: 0.1
+  # Penalize calling a real photo AI more than missing an AI image.
+  # 1.0 = balanced BCE. >1 shifts the operating point toward fewer false positives.
+  real_class_weight: 2.5
+
+thresholds:
+  # Recalibrated so pred rises with P(AI). See outputs/calibration.json.
+  # likely_real < 0.28; filters_or_edited 0.28-0.70; likely_ai > 0.70.
+  likely_real_max: 0.28
+  likely_ai_min: 0.70
+  logit_bias: -0.25
+  temperature: 0.9
 
 augmentations:
   enabled: true
@@ -70,10 +85,6 @@ augmentations:
   center_crop:
     enabled: true
     fraction: 0.8
-
-thresholds:
-  likely_real_max: 0.4
-  likely_ai_min: 0.6
 
 eval:
   max_samples: null

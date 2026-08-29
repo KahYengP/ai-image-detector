@@ -1,0 +1,47 @@
+{
+  "chosen": {
+    "logit_bias": -0.25,
+    "temperature": 0.9,
+    "likely_real_max": 0.28,
+    "likely_ai_min": 0.7,
+    "fn_ai_called_real": 0.03888888888888889,
+    "fp_real_called_ai": 0.07777777777777778,
+    "ai_recall_hard": 0.8777777777777778,
+    "spearman": 0.7240210186806997,
+    "ece": 0.03288199333966865,
+    "mean_pred_real": 0.17905999005846415,
+    "mean_pred_ai": 0.8723399817751856,
+    "nll": 0.25611539172373066,
+    "relaxed_limits": false
+  },
+  "targets": {
+    "max_fn": 0.12,
+    "max_fp": 0.15
+  },
+  "n_val": 360,
+  "n_real": 180,
+  "n_ai": 180,
+  "by_source": {
+    "cifake": {
+      "n": 160,
+      "spearman": 0.5722430563693894,
+      "fn_ai_called_real": 0.05,
+      "fp_real_called_ai": 0.15,
+      "ai_recall_hard": 0.8,
+      "ai_in_edited_band": 0.15,
+      "real_in_edited_band": 0.2375
+    },
+    "sid_set": {
+      "n": 200,
+      "spearman": 0.7393594839870997,
+      "fn_ai_called_real": 0.03,
+      "fp_real_called_ai": 0.02,
+      "ai_recall_hard": 0.94,
+      "ai_in_edited_band": 0.03,
+      "real_in_edited_band": 0.1
+    }
+  },
+  "limits": {
+    "meaning": "pred is temperature-scaled so it increases with P(AI). likely_real if pred < likely_real_max; likely_ai_generated if pred > likely_ai_min; the band between is filters_or_edited (filters, retouching, or partial AI edits)."
+  }
+}

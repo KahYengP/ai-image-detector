@@ -256,11 +256,11 @@ def write_error_analysis(
         "## Trade-offs",
         "",
         "- The frequency branch is most useful when upsampling artifacts survive, but JPEG q30 "
-        "and heavy blur flatten the spectrum and push more mass into `low_confidence`.",
+        "and heavy blur flatten the spectrum and push more mass into `filters_or_edited`.",
         "- The semantic branch is more stable under crop/jitter/resize, and can over-trigger on "
         "unusual real photographs that sit far from CLIP's pretraining distribution.",
-        "- The 0.4–0.6 band is an automated policy hook (downrank + secondary pass), not a claim "
-        "that the fused score is calibrated as a probability.",
+        "- The middle band is an automated policy hook for filters / retouching / partial AI "
+        "edits, not a claim that the fused score is a perfectly calibrated probability.",
         "",
     ]
     out_md.write_text("\n".join(lines), encoding="utf-8")
