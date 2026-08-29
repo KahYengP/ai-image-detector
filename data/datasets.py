@@ -233,6 +233,74 @@ def _guess_generator(path: Path) -> Optional[str]:
     return None
 
 
+def _human_label_from_name(stem: str) -> Optional[tuple[int, str]]:
+    """Map `train images` filename prefixes to (label, generator).
+
+    real / real-blur / edited-filtered → 0 (photograph, including retouch)
+    ai-generated → 1
+    """
+    name = stem.lower().replace(" ", "-").replace("_", "-")
+    if name.startswith("ai-generated") or name.startswith("aigenerated"):
+        return 1, "ai_generated"
+    if name.startswith("edited-filtered") or name.startswith("edited"):
+        return 0, "edited_filtered"
+    if name.startswith("real-blur") or name.startswith("realblur"):
+        return 0, "real_blur"
+    if name.startswith("real"):
+        return 0, "real"
+    return None
+
+
+def load_human_labeled(root: Path) -> list[Sample]:
+    """Load the user-labeled folder (`real*.jpeg`, `ai-generated*.jpeg`, ...)."""
+    if not root.is_dir():
+        raise FileNotFoundError(
+            f"Human-labeled folder not found: {root}. "
+            "Point config.yaml paths.human at `train images`."
+        )
+    samples: list[Sample] = []
+    unlabeled = 0
+    for path in _iter_images(root):
+        parsed = _human_label_from_name(path.stem)
+        if parsed is None:
+            unlabeled += 1
+            continue
+        label, generator = parsed
+        samples.append(Sample(path=path, label=label, source="human", generator=generator))
+    if not samples:
+        raise FileNotFoundError(
+            f"No labeled images under {root} (unlabeled={unlabeled}). "
+            "Name files real*, real-blur*, edited-filtered*, or ai-generated*."
+        )
+    print(
+        f"[human] loaded={len(samples)} unlabeled={unlabeled} "
+        f"real={sum(1 for s in samples if s.label == 0)} "
+        f"ai={sum(1 for s in samples if s.label == 1)}"
+    )
+    return samples
+
+
+def _split_human(samples: list[Sample], split: str, val_fraction: float, seed: int) -> list[Sample]:
+    """Hold out a small val slice; the rest is train. Not used as test."""
+    rng = random.Random(seed)
+    by_gen: dict[str, list[Sample]] = {}
+    for sample in samples:
+        by_gen.setdefault(sample.generator or "other", []).append(sample)
+    train: list[Sample] = []
+    val: list[Sample] = []
+    for bucket in by_gen.values():
+        shuffled = bucket[:]
+        rng.shuffle(shuffled)
+        n_val = max(1, int(round(len(shuffled) * val_fraction))) if len(shuffled) >= 4 else 0
+        val.extend(shuffled[:n_val])
+        train.extend(shuffled[n_val:])
+    rng.shuffle(train)
+    rng.shuffle(val)
+    if split == "test":
+        return []
+    return val if split == "val" else train
+
+
 def load_wildfake(root: Path, exclude_tokens: list[str]) -> list[Sample]:
     if not root.is_dir():
         raise FileNotFoundError(
@@ -387,6 +455,21 @@ def collect_samples(cfg: dict[str, Any], split: str) -> list[Sample]:
             samples.extend(bucket)
         except FileNotFoundError as exc:
             print(f"[data] skipping WildFake in combined: {exc}")
+        try:
+            human_all = load_human_labeled(resolve_path(cfg, "human"))
+            val_frac = float(cfg["train"].get("val_fraction", 0.1))
+            human_part = _split_human(human_all, split, val_frac, seed + 7)
+            if split == "train":
+                factor = int(cfg["dataset"].get("human_oversample") or 1)
+                if factor > 1 and human_part:
+                    print(
+                        f"[human] oversample x{factor} unique={len(human_part)} "
+                        f"-> {len(human_part) * factor}"
+                    )
+                    human_part = human_part * factor
+            samples.extend(human_part)
+        except (FileNotFoundError, KeyError) as exc:
+            print(f"[data] skipping human-labeled set: {exc}")
         if not samples:
             raise FileNotFoundError("combined dataset is empty — point config.yaml at at least one dump.")
         return _subsample(samples, max_samples, seed)

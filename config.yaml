@@ -7,6 +7,7 @@ paths:
   cifake: data/raw/cifake
   sid_set: data/raw/sid_set
   wildfake: data/raw/wildfake
+  human: train images
   output_dir: outputs
   checkpoint: outputs/best.pt
 
@@ -16,6 +17,9 @@ dataset:
   # CIFAKE is 32x32. In combined mode, cap it so high-res SID_Set photos
   # (ordinary camera stills) are the majority of the "real" class.
   combined_cifake_max_per_class: 300
+  # Repeat each human-labeled photo this many times so 48 images are not
+  # drowned by SID_Set. Labels come from the filename prefix.
+  human_oversample: 12
   image_size: 224
   # When the source image is larger than image_size, crop instead of downsampling
   # so high-frequency generator artifacts are not destroyed.
@@ -54,11 +58,11 @@ train:
   real_class_weight: 2.5
 
 thresholds:
-  # Recalibrated so pred rises with P(AI). See outputs/calibration.json.
+  # Recalibrated after human-labeled fine-tune. See outputs/calibration.json.
   # likely_real < 0.28; filters_or_edited 0.28-0.70; likely_ai > 0.70.
   likely_real_max: 0.28
   likely_ai_min: 0.70
-  logit_bias: -0.25
+  logit_bias: 0.45
   temperature: 0.9
 
 augmentations:

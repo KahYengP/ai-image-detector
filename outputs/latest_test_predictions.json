@@ -1,0 +1,342 @@
+[
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image20.png",
+    "pred": 0.002389,
+    "semantic_score": 0.000899,
+    "frequency_score": 0.269291,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "plastic_skin"
+      ],
+      "logit_boost": 1.783,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0015,
+        "garbled_text": 0.0025,
+        "accessories": 0.2663,
+        "background": 0.0152,
+        "plastic_skin": 0.6295,
+        "ai_render": 0.0365,
+        "watermark": 0.0003,
+        "skin_texture": 0.0,
+        "overall_ai": 0.9518
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image21.png",
+    "pred": 0.002773,
+    "semantic_score": 0.000623,
+    "frequency_score": 0.269083,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin"
+      ],
+      "logit_boost": 1.3,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0004,
+        "accessories": 0.0651,
+        "background": 0.0228,
+        "plastic_skin": 0.8123,
+        "ai_render": 0.065,
+        "watermark": 0.0003,
+        "skin_texture": 0.0,
+        "overall_ai": 0.966
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image22.png",
+    "pred": 0.981274,
+    "semantic_score": 0.85036,
+    "frequency_score": 0.268239,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.003,
+        "garbled_text": 0.0275,
+        "accessories": 0.0528,
+        "background": 0.4235,
+        "plastic_skin": 0.0019,
+        "ai_render": 0.0273,
+        "watermark": 0.0025,
+        "skin_texture": 0.0,
+        "overall_ai": 0.5386
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image23.jpeg",
+    "pred": 0.000911,
+    "semantic_score": 0.000179,
+    "frequency_score": 0.263911,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally; over-smoothed, poreless skin and overly perfect lighting; CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "plastic_skin",
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.1056,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.001,
+        "garbled_text": 0.0206,
+        "accessories": 0.1282,
+        "background": 0.194,
+        "plastic_skin": 0.1838,
+        "ai_render": 0.3643,
+        "watermark": 0.0143,
+        "skin_texture": 0.5268,
+        "overall_ai": 0.9063
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image24.jpeg",
+    "pred": 0.022648,
+    "semantic_score": 0.014573,
+    "frequency_score": 0.275059,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.0025,
+        "accessories": 0.0519,
+        "background": 0.0079,
+        "plastic_skin": 0.2879,
+        "ai_render": 0.0292,
+        "watermark": 0.001,
+        "skin_texture": 0.3499,
+        "overall_ai": 0.3808
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image25.jpeg",
+    "pred": 5.5e-05,
+    "semantic_score": 2.3e-05,
+    "frequency_score": 0.26889,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally; CLIP cues of a synthetic render.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "ai_render"
+      ],
+      "logit_boost": 0.5892,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0012,
+        "garbled_text": 0.079,
+        "accessories": 0.0625,
+        "background": 0.1924,
+        "plastic_skin": 0.0353,
+        "ai_render": 0.2913,
+        "watermark": 0.0066,
+        "skin_texture": 0.4278,
+        "overall_ai": 0.6684
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image26.jpeg",
+    "pred": 0.001589,
+    "semantic_score": 0.000464,
+    "frequency_score": 0.278401,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0007,
+        "garbled_text": 0.0109,
+        "accessories": 0.1786,
+        "background": 0.0848,
+        "plastic_skin": 0.1618,
+        "ai_render": 0.061,
+        "watermark": 0.0061,
+        "skin_texture": 0.339,
+        "overall_ai": 0.504
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image27.jpeg",
+    "pred": 0.680315,
+    "semantic_score": 0.232677,
+    "frequency_score": 0.260743,
+    "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits). Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting; over-smoothed skin texture.",
+    "tier": "filters_or_edited",
+    "suggested_policy": "Treat as a filtered or edited photograph (including partial AI edits). Do not treat as a clean camera original, and do not attach a full AIGC label.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin",
+        "skin_texture"
+      ],
+      "logit_boost": 1.7517,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0007,
+        "garbled_text": 0.0026,
+        "accessories": 0.0436,
+        "background": 0.0328,
+        "plastic_skin": 0.5475,
+        "ai_render": 0.0818,
+        "watermark": 0.0033,
+        "skin_texture": 0.6985,
+        "overall_ai": 0.7123
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image28.jpeg",
+    "pred": 0.012243,
+    "semantic_score": 0.004055,
+    "frequency_score": 0.268854,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting; CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin",
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.5836,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0003,
+        "garbled_text": 0.0071,
+        "accessories": 0.1033,
+        "background": 0.0272,
+        "plastic_skin": 0.58,
+        "ai_render": 0.1919,
+        "watermark": 0.0008,
+        "skin_texture": 0.5744,
+        "overall_ai": 0.9106
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image29.jpeg",
+    "pred": 0.159921,
+    "semantic_score": 0.037422,
+    "frequency_score": 0.266964,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting; CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin",
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.9406,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0203,
+        "accessories": 0.0169,
+        "background": 0.0874,
+        "plastic_skin": 0.2299,
+        "ai_render": 0.4876,
+        "watermark": 0.0085,
+        "skin_texture": 0.7145,
+        "overall_ai": 0.8509
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image30.jpeg",
+    "pred": 0.999895,
+    "semantic_score": 0.989555,
+    "frequency_score": 0.286874,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues. Visual/metadata cues: background objects that merge or bend unnaturally.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "background"
+      ],
+      "logit_boost": 1.1,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0032,
+        "garbled_text": 0.0075,
+        "accessories": 0.0017,
+        "background": 0.703,
+        "plastic_skin": 0.0018,
+        "ai_render": 0.0647,
+        "watermark": 0.0028,
+        "skin_texture": 0.0,
+        "overall_ai": 0.7847
+      }
+    }
+  },
+  {
+    "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\image31.jpeg",
+    "pred": 0.995736,
+    "semantic_score": 0.913861,
+    "frequency_score": 0.245991,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues. Visual/metadata cues: background objects that merge or bend unnaturally.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "background"
+      ],
+      "logit_boost": 1.1,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0412,
+        "accessories": 0.0,
+        "background": 0.5486,
+        "plastic_skin": 0.0004,
+        "ai_render": 0.0403,
+        "watermark": 0.0043,
+        "skin_texture": 0.0,
+        "overall_ai": 0.6351
+      }
+    }
+  }
+]

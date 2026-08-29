@@ -96,6 +96,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--no-aug", action="store_true", help="Disable training-time augmentations.")
     parser.add_argument("--device", default=None, choices=["cpu", "cuda"])
     parser.add_argument("--output", default=None, help="Checkpoint path (default: paths.checkpoint).")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Continue from paths.checkpoint so the 48 human photos fine-tune the existing model.",
+    )
     return parser.parse_args()
 
 
@@ -156,6 +161,20 @@ def main() -> None:
     if total >= 2_000_000_000:
         raise SystemExit("Model exceeds the 2B parameter limit.")
 
+    ckpt_path = Path(args.output) if args.output else Path(cfg["paths"]["checkpoint"])
+    if not ckpt_path.is_absolute():
+        ckpt_path = project_root() / ckpt_path
+    ckpt_path.parent.mkdir(parents=True, exist_ok=True)
+    if args.resume:
+        if not ckpt_path.is_file():
+            raise SystemExit(f"--resume set but checkpoint not found: {ckpt_path}")
+        blob = torch.load(ckpt_path, map_location=device, weights_only=False)
+        model.load_state_dict(blob["model_state"], strict=False)
+        print(
+            f"resumed {ckpt_path} epoch={blob.get('epoch')} "
+            f"val_auc={blob.get('val_auc')}"
+        )
+
     optimizer = torch.optim.AdamW(
         (p for p in model.parameters() if p.requires_grad),
         lr=float(cfg["train"]["lr"]),
@@ -164,10 +183,6 @@ def main() -> None:
     aux_weight = float(cfg["model"].get("aux_loss_weight", 0.3))
     real_w = float(cfg["train"].get("real_class_weight", 1.0))
     best_auc = -1.0
-    ckpt_path = Path(args.output) if args.output else Path(cfg["paths"]["checkpoint"])
-    if not ckpt_path.is_absolute():
-        ckpt_path = project_root() / ckpt_path
-    ckpt_path.parent.mkdir(parents=True, exist_ok=True)
 
     history = []
     for epoch in range(1, int(cfg["train"]["epochs"]) + 1):

@@ -1,0 +1,1331 @@
+[
+  {
+    "image_path": "train images\\ai-generated.jpeg",
+    "pred": 0.027441,
+    "semantic_score": 0.008197,
+    "frequency_score": 0.276019,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "skin_texture"
+      ],
+      "logit_boost": 0.2054,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0,
+        "garbled_text": 0.002,
+        "accessories": 0.0009,
+        "background": 0.0549,
+        "plastic_skin": 0.1274,
+        "ai_render": 0.0563,
+        "watermark": 0.0007,
+        "skin_texture": 0.563,
+        "overall_ai": 0.2422
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated10.jpeg",
+    "pred": 0.859032,
+    "semantic_score": 0.892826,
+    "frequency_score": 0.283517,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0001,
+        "garbled_text": 0.003,
+        "accessories": 0.0054,
+        "background": 0.0103,
+        "plastic_skin": 0.1064,
+        "ai_render": 0.0035,
+        "watermark": 0.0002,
+        "skin_texture": 0.0,
+        "overall_ai": 0.1288
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated11.jpeg",
+    "pred": 0.997317,
+    "semantic_score": 0.997173,
+    "frequency_score": 0.263177,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.0047,
+        "accessories": 0.1141,
+        "background": 0.0321,
+        "plastic_skin": 0.1129,
+        "ai_render": 0.2522,
+        "watermark": 0.0033,
+        "skin_texture": 0.0,
+        "overall_ai": 0.5196
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated12.jpeg",
+    "pred": 0.999892,
+    "semantic_score": 0.996999,
+    "frequency_score": 0.271227,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues. Visual/metadata cues: background objects that merge or bend unnaturally.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "background"
+      ],
+      "logit_boost": 0.5884,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.2006,
+        "accessories": 0.0001,
+        "background": 0.3137,
+        "plastic_skin": 0.0051,
+        "ai_render": 0.1185,
+        "watermark": 0.0224,
+        "skin_texture": 0.0,
+        "overall_ai": 0.6608
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated13.jpeg",
+    "pred": 0.136763,
+    "semantic_score": 0.096476,
+    "frequency_score": 0.274775,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0015,
+        "garbled_text": 0.0024,
+        "accessories": 0.0098,
+        "background": 0.0868,
+        "plastic_skin": 0.0092,
+        "ai_render": 0.003,
+        "watermark": 0.0025,
+        "skin_texture": 0.0,
+        "overall_ai": 0.1151
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated14.jpeg",
+    "pred": 0.991673,
+    "semantic_score": 0.960346,
+    "frequency_score": 0.264887,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.003,
+        "garbled_text": 0.0091,
+        "accessories": 0.4044,
+        "background": 0.0079,
+        "plastic_skin": 0.0087,
+        "ai_render": 0.0134,
+        "watermark": 0.0023,
+        "skin_texture": 0.2208,
+        "overall_ai": 0.4489
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated2.jpeg",
+    "pred": 0.718162,
+    "semantic_score": 0.480033,
+    "frequency_score": 0.273643,
+    "explanation": "The fused score indicates AI generation. Visual/metadata cues: background objects that merge or bend unnaturally; CLIP cues of a synthetic render.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "ai_render"
+      ],
+      "logit_boost": 0.9512,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0011,
+        "garbled_text": 0.1013,
+        "accessories": 0.0003,
+        "background": 0.3673,
+        "plastic_skin": 0.0056,
+        "ai_render": 0.2065,
+        "watermark": 0.0276,
+        "skin_texture": 0.0,
+        "overall_ai": 0.7096
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated3.jpeg",
+    "pred": 0.233131,
+    "semantic_score": 0.107339,
+    "frequency_score": 0.278036,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "skin_texture"
+      ],
+      "logit_boost": 0.0564,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0063,
+        "accessories": 0.0505,
+        "background": 0.0697,
+        "plastic_skin": 0.0154,
+        "ai_render": 0.0139,
+        "watermark": 0.0037,
+        "skin_texture": 0.481,
+        "overall_ai": 0.1597
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated4.jpeg",
+    "pred": 0.783193,
+    "semantic_score": 0.867945,
+    "frequency_score": 0.282839,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0007,
+        "garbled_text": 0.1774,
+        "accessories": 0.0001,
+        "background": 0.0411,
+        "plastic_skin": 0.0485,
+        "ai_render": 0.0676,
+        "watermark": 0.0093,
+        "skin_texture": 0.1529,
+        "overall_ai": 0.3447
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated5.jpeg",
+    "pred": 0.154245,
+    "semantic_score": 0.086741,
+    "frequency_score": 0.275558,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "skin_texture"
+      ],
+      "logit_boost": 0.2193,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0005,
+        "garbled_text": 0.0131,
+        "accessories": 0.0004,
+        "background": 0.0891,
+        "plastic_skin": 0.0147,
+        "ai_render": 0.0158,
+        "watermark": 0.0063,
+        "skin_texture": 0.5706,
+        "overall_ai": 0.1398
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated6.jpeg",
+    "pred": 0.308233,
+    "semantic_score": 0.399697,
+    "frequency_score": 0.276298,
+    "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+    "tier": "filters_or_edited",
+    "suggested_policy": "Treat as a filtered or edited photograph (including partial AI edits). Do not treat as a clean camera original, and do not attach a full AIGC label.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0001,
+        "garbled_text": 0.0043,
+        "accessories": 0.0017,
+        "background": 0.0252,
+        "plastic_skin": 0.0316,
+        "ai_render": 0.0455,
+        "watermark": 0.0051,
+        "skin_texture": 0.0,
+        "overall_ai": 0.1135
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated7.jpeg",
+    "pred": 0.657897,
+    "semantic_score": 0.610497,
+    "frequency_score": 0.287244,
+    "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits).",
+    "tier": "filters_or_edited",
+    "suggested_policy": "Treat as a filtered or edited photograph (including partial AI edits). Do not treat as a clean camera original, and do not attach a full AIGC label.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0029,
+        "garbled_text": 0.0289,
+        "accessories": 0.0007,
+        "background": 0.1624,
+        "plastic_skin": 0.0008,
+        "ai_render": 0.3411,
+        "watermark": 0.0082,
+        "skin_texture": 0.0,
+        "overall_ai": 0.545
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated8.jpeg",
+    "pred": 0.851786,
+    "semantic_score": 0.896942,
+    "frequency_score": 0.304372,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues. Visual/metadata cues: over-smoothed skin texture.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "skin_texture"
+      ],
+      "logit_boost": 0.2149,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0005,
+        "garbled_text": 0.0545,
+        "accessories": 0.0002,
+        "background": 0.0466,
+        "plastic_skin": 0.0056,
+        "ai_render": 0.0414,
+        "watermark": 0.0066,
+        "skin_texture": 0.5682,
+        "overall_ai": 0.1554
+      }
+    }
+  },
+  {
+    "image_path": "train images\\ai-generated9.jpeg",
+    "pred": 0.691617,
+    "semantic_score": 0.594018,
+    "frequency_score": 0.270362,
+    "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits). Visual/metadata cues: over-smoothed skin texture.",
+    "tier": "filters_or_edited",
+    "suggested_policy": "Treat as a filtered or edited photograph (including partial AI edits). Do not treat as a clean camera original, and do not attach a full AIGC label.",
+    "artifact_cues": {
+      "fired": [
+        "skin_texture"
+      ],
+      "logit_boost": 0.1685,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0007,
+        "garbled_text": 0.0216,
+        "accessories": 0.0003,
+        "background": 0.1065,
+        "plastic_skin": 0.009,
+        "ai_render": 0.0615,
+        "watermark": 0.0087,
+        "skin_texture": 0.5427,
+        "overall_ai": 0.2082
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered1.jpeg",
+    "pred": 0.01813,
+    "semantic_score": 0.016811,
+    "frequency_score": 0.273162,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0053,
+        "garbled_text": 0.0184,
+        "accessories": 0.0163,
+        "background": 0.0207,
+        "plastic_skin": 0.062,
+        "ai_render": 0.0125,
+        "watermark": 0.0015,
+        "skin_texture": 0.169,
+        "overall_ai": 0.1367
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered10.jpeg",
+    "pred": 0.008654,
+    "semantic_score": 0.002897,
+    "frequency_score": 0.265174,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "plastic_skin"
+      ],
+      "logit_boost": 0.9841,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.006,
+        "garbled_text": 0.0051,
+        "accessories": 0.2084,
+        "background": 0.0201,
+        "plastic_skin": 0.3386,
+        "ai_render": 0.0074,
+        "watermark": 0.0009,
+        "skin_texture": 0.0825,
+        "overall_ai": 0.5866
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered11.jpeg",
+    "pred": 0.015029,
+    "semantic_score": 0.004358,
+    "frequency_score": 0.268889,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin"
+      ],
+      "logit_boost": 1.3,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0,
+        "garbled_text": 0.0008,
+        "accessories": 0.0335,
+        "background": 0.0058,
+        "plastic_skin": 0.8162,
+        "ai_render": 0.0804,
+        "watermark": 0.0006,
+        "skin_texture": 0.0,
+        "overall_ai": 0.9374
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered12.jpeg",
+    "pred": 0.075024,
+    "semantic_score": 0.022905,
+    "frequency_score": 0.268439,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin",
+        "skin_texture"
+      ],
+      "logit_boost": 1.5025,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.0071,
+        "accessories": 0.0456,
+        "background": 0.0312,
+        "plastic_skin": 0.5928,
+        "ai_render": 0.1315,
+        "watermark": 0.0014,
+        "skin_texture": 0.5614,
+        "overall_ai": 0.81
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered2.jpeg",
+    "pred": 0.003781,
+    "semantic_score": 0.000587,
+    "frequency_score": 0.269096,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "skin_texture"
+      ],
+      "logit_boost": 1.346,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0015,
+        "garbled_text": 0.0118,
+        "accessories": 0.3982,
+        "background": 0.0601,
+        "plastic_skin": 0.0522,
+        "ai_render": 0.0583,
+        "watermark": 0.0014,
+        "skin_texture": 0.5184,
+        "overall_ai": 0.5834
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered3.jpeg",
+    "pred": 0.022654,
+    "semantic_score": 0.001308,
+    "frequency_score": 0.272068,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin"
+      ],
+      "logit_boost": 1.3,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0029,
+        "garbled_text": 0.0024,
+        "accessories": 0.0741,
+        "background": 0.0053,
+        "plastic_skin": 0.5936,
+        "ai_render": 0.0123,
+        "watermark": 0.0008,
+        "skin_texture": 0.2711,
+        "overall_ai": 0.6915
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered4.jpeg",
+    "pred": 0.06001,
+    "semantic_score": 0.012061,
+    "frequency_score": 0.264541,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed, poreless skin and overly perfect lighting; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "plastic_skin",
+        "skin_texture"
+      ],
+      "logit_boost": 1.8152,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0041,
+        "garbled_text": 0.0038,
+        "accessories": 0.222,
+        "background": 0.01,
+        "plastic_skin": 0.4146,
+        "ai_render": 0.0068,
+        "watermark": 0.0005,
+        "skin_texture": 0.6482,
+        "overall_ai": 0.6616
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered5.jpeg",
+    "pred": 0.000527,
+    "semantic_score": 0.000192,
+    "frequency_score": 0.269896,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "skin_texture"
+      ],
+      "logit_boost": 1.0403,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0071,
+        "garbled_text": 0.0082,
+        "accessories": 0.3104,
+        "background": 0.0647,
+        "plastic_skin": 0.1679,
+        "ai_render": 0.1412,
+        "watermark": 0.0041,
+        "skin_texture": 0.6204,
+        "overall_ai": 0.7037
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered6.jpeg",
+    "pred": 0.012868,
+    "semantic_score": 0.002423,
+    "frequency_score": 0.268906,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; CLIP cues of a synthetic render.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "ai_render"
+      ],
+      "logit_boost": 1.4292,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0001,
+        "garbled_text": 0.0043,
+        "accessories": 0.6014,
+        "background": 0.0171,
+        "plastic_skin": 0.1105,
+        "ai_render": 0.1861,
+        "watermark": 0.0006,
+        "skin_texture": 0.4248,
+        "overall_ai": 0.9202
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered7.jpeg",
+    "pred": 0.001552,
+    "semantic_score": 0.000307,
+    "frequency_score": 0.262803,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "plastic_skin"
+      ],
+      "logit_boost": 1.4533,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.0055,
+        "accessories": 0.5442,
+        "background": 0.0277,
+        "plastic_skin": 0.1902,
+        "ai_render": 0.0817,
+        "watermark": 0.0015,
+        "skin_texture": 0.0,
+        "overall_ai": 0.8514
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered8.jpeg",
+    "pred": 0.233684,
+    "semantic_score": 0.106707,
+    "frequency_score": 0.265875,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting; CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin",
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.0801,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.003,
+        "garbled_text": 0.016,
+        "accessories": 0.0767,
+        "background": 0.1181,
+        "plastic_skin": 0.201,
+        "ai_render": 0.3457,
+        "watermark": 0.0151,
+        "skin_texture": 0.5465,
+        "overall_ai": 0.7757
+      }
+    }
+  },
+  {
+    "image_path": "train images\\edited-filtered9.jpeg",
+    "pred": 0.006923,
+    "semantic_score": 0.001444,
+    "frequency_score": 0.273107,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting; CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin",
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.8068,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0014,
+        "accessories": 0.0129,
+        "background": 0.024,
+        "plastic_skin": 0.6666,
+        "ai_render": 0.2531,
+        "watermark": 0.0003,
+        "skin_texture": 0.5357,
+        "overall_ai": 0.9584
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur.jpeg",
+    "pred": 0.011049,
+    "semantic_score": 0.001408,
+    "frequency_score": 0.280884,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.8038,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0289,
+        "accessories": 0.0086,
+        "background": 0.1604,
+        "plastic_skin": 0.0106,
+        "ai_render": 0.6501,
+        "watermark": 0.0148,
+        "skin_texture": 0.7821,
+        "overall_ai": 0.8736
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur2.jpeg",
+    "pred": 0.001754,
+    "semantic_score": 0.00136,
+    "frequency_score": 0.289282,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0024,
+        "garbled_text": 0.0019,
+        "accessories": 0.0165,
+        "background": 0.022,
+        "plastic_skin": 0.0036,
+        "ai_render": 0.007,
+        "watermark": 0.0006,
+        "skin_texture": 0.3675,
+        "overall_ai": 0.0539
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur3.jpeg",
+    "pred": 0.818734,
+    "semantic_score": 0.796366,
+    "frequency_score": 0.273503,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues. Visual/metadata cues: over-smoothed skin texture.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "skin_texture"
+      ],
+      "logit_boost": 0.3027,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0,
+        "garbled_text": 0.008,
+        "accessories": 0.0003,
+        "background": 0.0356,
+        "plastic_skin": 0.3111,
+        "ai_render": 0.013,
+        "watermark": 0.0013,
+        "skin_texture": 0.6165,
+        "overall_ai": 0.3693
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur4.jpeg",
+    "pred": 0.565926,
+    "semantic_score": 0.173419,
+    "frequency_score": 0.263024,
+    "explanation": "The fused score sits between a clean camera original and full AIGC; treat as a filtered or edited photograph (including partial AI edits). Visual/metadata cues: background objects that merge or bend unnaturally; CLIP cues of a synthetic render; over-smoothed skin texture.",
+    "tier": "filters_or_edited",
+    "suggested_policy": "Treat as a filtered or edited photograph (including partial AI edits). Do not treat as a clean camera original, and do not attach a full AIGC label.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "ai_render",
+        "skin_texture"
+      ],
+      "logit_boost": 1.7419,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0003,
+        "garbled_text": 0.0111,
+        "accessories": 0.006,
+        "background": 0.2213,
+        "plastic_skin": 0.1218,
+        "ai_render": 0.4115,
+        "watermark": 0.01,
+        "skin_texture": 0.6969,
+        "overall_ai": 0.782
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur5.jpeg",
+    "pred": 6.4e-05,
+    "semantic_score": 9.5e-05,
+    "frequency_score": 0.266075,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0001,
+        "garbled_text": 0.0091,
+        "accessories": 0.004,
+        "background": 0.381,
+        "plastic_skin": 0.0256,
+        "ai_render": 0.1217,
+        "watermark": 0.0019,
+        "skin_texture": 0.0,
+        "overall_ai": 0.5433
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur6.jpeg",
+    "pred": 0.014205,
+    "semantic_score": 0.019237,
+    "frequency_score": 0.28854,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0003,
+        "garbled_text": 0.0176,
+        "accessories": 0.2826,
+        "background": 0.1492,
+        "plastic_skin": 0.0148,
+        "ai_render": 0.0263,
+        "watermark": 0.002,
+        "skin_texture": 0.2066,
+        "overall_ai": 0.4928
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real-blur7.jpeg",
+    "pred": 0.891423,
+    "semantic_score": 0.742344,
+    "frequency_score": 0.276743,
+    "explanation": "The fused score indicates AI generation; driven mainly by semantic cues. Visual/metadata cues: over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_ai_generated",
+    "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank.",
+    "artifact_cues": {
+      "fired": [
+        "plastic_skin"
+      ],
+      "logit_boost": 1.3,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0014,
+        "garbled_text": 0.0007,
+        "accessories": 0.0028,
+        "background": 0.0156,
+        "plastic_skin": 0.6507,
+        "ai_render": 0.0026,
+        "watermark": 0.0001,
+        "skin_texture": 0.3861,
+        "overall_ai": 0.674
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real1.jpeg",
+    "pred": 0.009571,
+    "semantic_score": 0.003959,
+    "frequency_score": 0.264265,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; CLIP cues of a synthetic render.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "ai_render"
+      ],
+      "logit_boost": 0.6464,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.0125,
+        "accessories": 0.282,
+        "background": 0.0773,
+        "plastic_skin": 0.1286,
+        "ai_render": 0.1957,
+        "watermark": 0.0066,
+        "skin_texture": 0.0,
+        "overall_ai": 0.7029
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real10.jpeg",
+    "pred": 0.000179,
+    "semantic_score": 4.6e-05,
+    "frequency_score": 0.265632,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses; over-smoothed skin texture.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories",
+        "skin_texture"
+      ],
+      "logit_boost": 1.5921,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0126,
+        "garbled_text": 0.0702,
+        "accessories": 0.4223,
+        "background": 0.1461,
+        "plastic_skin": 0.0176,
+        "ai_render": 0.1112,
+        "watermark": 0.0084,
+        "skin_texture": 0.5793,
+        "overall_ai": 0.7883
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real11.jpeg",
+    "pred": 0.111922,
+    "semantic_score": 0.082869,
+    "frequency_score": 0.270116,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally; over-smoothed, poreless skin and overly perfect lighting.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "plastic_skin"
+      ],
+      "logit_boost": 0.3914,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.0938,
+        "accessories": 0.1239,
+        "background": 0.2069,
+        "plastic_skin": 0.2325,
+        "ai_render": 0.0636,
+        "watermark": 0.012,
+        "skin_texture": 0.225,
+        "overall_ai": 0.7331
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real12.jpeg",
+    "pred": 0.013531,
+    "semantic_score": 0.020716,
+    "frequency_score": 0.26329,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0008,
+        "garbled_text": 0.2493,
+        "accessories": 0.0192,
+        "background": 0.1515,
+        "plastic_skin": 0.0359,
+        "ai_render": 0.053,
+        "watermark": 0.013,
+        "skin_texture": 0.1858,
+        "overall_ai": 0.5228
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real13.jpeg",
+    "pred": 0.003361,
+    "semantic_score": 0.001377,
+    "frequency_score": 0.272082,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background"
+      ],
+      "logit_boost": 0.9615,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0011,
+        "garbled_text": 0.076,
+        "accessories": 0.0109,
+        "background": 0.3985,
+        "plastic_skin": 0.016,
+        "ai_render": 0.1347,
+        "watermark": 0.0154,
+        "skin_texture": 0.0,
+        "overall_ai": 0.6527
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real14.jpeg",
+    "pred": 0.000352,
+    "semantic_score": 0.000375,
+    "frequency_score": 0.259165,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally; CLIP cues of a synthetic render.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "ai_render"
+      ],
+      "logit_boost": 1.0245,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0009,
+        "garbled_text": 0.0743,
+        "accessories": 0.0809,
+        "background": 0.3407,
+        "plastic_skin": 0.0085,
+        "ai_render": 0.2461,
+        "watermark": 0.0184,
+        "skin_texture": 0.0,
+        "overall_ai": 0.7697
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real15.jpeg",
+    "pred": 0.004144,
+    "semantic_score": 0.003553,
+    "frequency_score": 0.262048,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0023,
+        "garbled_text": 0.0235,
+        "accessories": 0.0066,
+        "background": 0.1925,
+        "plastic_skin": 0.1612,
+        "ai_render": 0.0365,
+        "watermark": 0.0012,
+        "skin_texture": 0.0,
+        "overall_ai": 0.4238
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real2.jpeg",
+    "pred": 5.4e-05,
+    "semantic_score": 9.5e-05,
+    "frequency_score": 0.270324,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0074,
+        "garbled_text": 0.0931,
+        "accessories": 0.0043,
+        "background": 0.2845,
+        "plastic_skin": 0.0089,
+        "ai_render": 0.087,
+        "watermark": 0.0124,
+        "skin_texture": 0.0331,
+        "overall_ai": 0.4975
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real3.jpeg",
+    "pred": 0.000696,
+    "semantic_score": 0.001346,
+    "frequency_score": 0.2753,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0273,
+        "garbled_text": 0.0861,
+        "accessories": 0.021,
+        "background": 0.0762,
+        "plastic_skin": 0.0048,
+        "ai_render": 0.0906,
+        "watermark": 0.0064,
+        "skin_texture": 0.0,
+        "overall_ai": 0.3124
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real4.jpeg",
+    "pred": 0.000381,
+    "semantic_score": 0.000169,
+    "frequency_score": 0.273887,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: mismatched earrings or glasses.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "accessories"
+      ],
+      "logit_boost": 1.4,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0001,
+        "garbled_text": 0.0015,
+        "accessories": 0.8908,
+        "background": 0.0147,
+        "plastic_skin": 0.0585,
+        "ai_render": 0.0155,
+        "watermark": 0.0004,
+        "skin_texture": 0.3612,
+        "overall_ai": 0.9815
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real5.jpeg",
+    "pred": 9.7e-05,
+    "semantic_score": 9.1e-05,
+    "frequency_score": 0.266059,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.0373,
+        "accessories": 0.0064,
+        "background": 0.0819,
+        "plastic_skin": 0.0792,
+        "ai_render": 0.0249,
+        "watermark": 0.0034,
+        "skin_texture": 0.0,
+        "overall_ai": 0.2334
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real6.jpeg",
+    "pred": 0.001893,
+    "semantic_score": 0.000851,
+    "frequency_score": 0.270282,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0005,
+        "garbled_text": 0.0495,
+        "accessories": 0.0117,
+        "background": 0.0348,
+        "plastic_skin": 0.0278,
+        "ai_render": 0.0087,
+        "watermark": 0.0032,
+        "skin_texture": 0.0,
+        "overall_ai": 0.1363
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real7.jpeg",
+    "pred": 7.5e-05,
+    "semantic_score": 8.4e-05,
+    "frequency_score": 0.269066,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background"
+      ],
+      "logit_boost": 0.5436,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0002,
+        "garbled_text": 0.1472,
+        "accessories": 0.0118,
+        "background": 0.3035,
+        "plastic_skin": 0.0015,
+        "ai_render": 0.1032,
+        "watermark": 0.0211,
+        "skin_texture": 0.0,
+        "overall_ai": 0.5885
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real8.jpeg",
+    "pred": 0.001458,
+    "semantic_score": 0.001422,
+    "frequency_score": 0.256514,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [],
+      "logit_boost": 0.0,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0043,
+        "garbled_text": 0.0816,
+        "accessories": 0.0397,
+        "background": 0.2684,
+        "plastic_skin": 0.0067,
+        "ai_render": 0.0729,
+        "watermark": 0.006,
+        "skin_texture": 0.4238,
+        "overall_ai": 0.4797
+      }
+    }
+  },
+  {
+    "image_path": "train images\\real9.jpeg",
+    "pred": 0.000522,
+    "semantic_score": 0.000324,
+    "frequency_score": 0.266512,
+    "explanation": "The fused score is consistent with a real photograph; semantic and frequency branches do not show a strong AI signature. Visual/metadata cues: background objects that merge or bend unnaturally; CLIP cues of a synthetic render.",
+    "tier": "likely_real",
+    "suggested_policy": "Allow with standard distribution weight.",
+    "artifact_cues": {
+      "fired": [
+        "background",
+        "ai_render"
+      ],
+      "logit_boost": 1.2511,
+      "provenance_ai": false,
+      "c2pa": false,
+      "visual": {
+        "hands": 0.0004,
+        "garbled_text": 0.1043,
+        "accessories": 0.0114,
+        "background": 0.4051,
+        "plastic_skin": 0.0359,
+        "ai_render": 0.2343,
+        "watermark": 0.0247,
+        "skin_texture": 0.0549,
+        "overall_ai": 0.8161
+      }
+    }
+  }
+]

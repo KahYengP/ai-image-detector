@@ -1,44 +1,53 @@
 {
   "chosen": {
-    "logit_bias": -0.25,
+    "logit_bias": 0.45,
     "temperature": 0.9,
     "likely_real_max": 0.28,
     "likely_ai_min": 0.7,
-    "fn_ai_called_real": 0.03888888888888889,
-    "fp_real_called_ai": 0.07777777777777778,
-    "ai_recall_hard": 0.8777777777777778,
-    "spearman": 0.7240210186806997,
-    "ece": 0.03288199333966865,
-    "mean_pred_real": 0.17905999005846415,
-    "mean_pred_ai": 0.8723399817751856,
-    "nll": 0.25611539172373066,
+    "fn_ai_called_real": 0.023622047244094488,
+    "fp_real_called_ai": 0.03125,
+    "ai_recall_hard": 0.8792650918635171,
+    "spearman": 0.7011711419766736,
+    "ece": 0.02310714262557513,
+    "mean_pred_real": 0.09662114255843657,
+    "mean_pred_ai": 0.8978487927608048,
+    "nll": 0.1623518353670564,
     "relaxed_limits": false
   },
   "targets": {
     "max_fn": 0.12,
     "max_fp": 0.15
   },
-  "n_val": 360,
-  "n_real": 180,
-  "n_ai": 180,
+  "n_val": 765,
+  "n_real": 384,
+  "n_ai": 381,
   "by_source": {
     "cifake": {
       "n": 160,
-      "spearman": 0.5722430563693894,
-      "fn_ai_called_real": 0.05,
-      "fp_real_called_ai": 0.15,
-      "ai_recall_hard": 0.8,
-      "ai_in_edited_band": 0.15,
-      "real_in_edited_band": 0.2375
+      "spearman": 0.5460769951951248,
+      "fn_ai_called_real": 0.0375,
+      "fp_real_called_ai": 0.075,
+      "ai_recall_hard": 0.6125,
+      "ai_in_edited_band": 0.35,
+      "real_in_edited_band": 0.3875
+    },
+    "human": {
+      "n": 5,
+      "spearman": 0.1,
+      "fn_ai_called_real": 1.0,
+      "fp_real_called_ai": 0.25,
+      "ai_recall_hard": 0.0,
+      "ai_in_edited_band": 0.0,
+      "real_in_edited_band": 0.0
     },
     "sid_set": {
-      "n": 200,
-      "spearman": 0.7393594839870997,
-      "fn_ai_called_real": 0.03,
-      "fp_real_called_ai": 0.02,
-      "ai_recall_hard": 0.94,
+      "n": 600,
+      "spearman": 0.7308179189386638,
+      "fn_ai_called_real": 0.016666666666666666,
+      "fp_real_called_ai": 0.016666666666666666,
+      "ai_recall_hard": 0.9533333333333334,
       "ai_in_edited_band": 0.03,
-      "real_in_edited_band": 0.1
+      "real_in_edited_band": 0.023333333333333334
     }
   },
   "limits": {
