@@ -1,0 +1,31 @@
+{
+  "dataset": "cifake",
+  "split": "train",
+  "real": {
+    "n": 22,
+    "n_jpeg": 22,
+    "n_non_jpeg": 0,
+    "mean_quality": 77.64,
+    "quality_hist": {
+      "90-100": 0,
+      "70-89": 22,
+      "50-69": 0,
+      "1-49": 0
+    },
+    "jpeg_fraction": 1.0
+  },
+  "ai": {
+    "n": 22,
+    "n_jpeg": 22,
+    "n_non_jpeg": 0,
+    "mean_quality": 96.44,
+    "quality_hist": {
+      "90-100": 22,
+      "70-89": 0,
+      "50-69": 0,
+      "1-49": 0
+    },
+    "jpeg_fraction": 1.0
+  },
+  "warning": "Mean JPEG quality differs by 18.8 points (real=77.64, AI=96.44). The model could use compression artifacts as a class cue."
+}

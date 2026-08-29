@@ -1,0 +1,106 @@
+{
+  "n_test": 400,
+  "conditions": [
+    {
+      "condition": "Clean",
+      "name": "clean",
+      "n": 400,
+      "pred": 0.9706220622062206,
+      "semantic": 0.9692719271927193,
+      "frequency": 0.6115111511151115
+    },
+    {
+      "condition": "JPEG q30 (low quality)",
+      "name": "jpeg",
+      "n": 400,
+      "pred": 0.9425692569256926,
+      "semantic": 0.9416441644164417,
+      "frequency": 0.606860686068607
+    },
+    {
+      "condition": "Resize 0.25x (small pixels)",
+      "name": "resize",
+      "n": 400,
+      "pred": 0.8855385538553855,
+      "semantic": 0.8857635763576358,
+      "frequency": 0.615936593659366
+    },
+    {
+      "condition": "Blur sigma=2 (soft capture)",
+      "name": "blur",
+      "n": 400,
+      "pred": 0.8832133213321331,
+      "semantic": 0.8850135013501349,
+      "frequency": 0.6110361036103611
+    },
+    {
+      "condition": "Darken 50% (poor lighting)",
+      "name": "darken",
+      "n": 400,
+      "pred": 0.9627212721272127,
+      "semantic": 0.9606960696069607,
+      "frequency": 0.5973597359735974
+    }
+  ],
+  "models": {
+    "semantic": {
+      "name": "CLIP semantic (ViT-B/32)",
+      "auc_clean": 0.9692719271927193,
+      "auc_quality": 0.9182793279327933,
+      "final_score": 0.9437756275627562
+    },
+    "frequency": {
+      "name": "Frequency CNN (FFT)",
+      "auc_clean": 0.6115111511151115,
+      "auc_quality": 0.6077982798279828,
+      "final_score": 0.6096547154715471
+    },
+    "pred": {
+      "name": "Fusion MLP (CLIP + FFT)",
+      "auc_clean": 0.9706220622062206,
+      "auc_quality": 0.9185106010601058,
+      "final_score": 0.9445663316331632
+    }
+  },
+  "winner": "pred",
+  "winner_name": "Fusion MLP (CLIP + FFT)",
+  "user_images": [
+    {
+      "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\dress.jpg",
+      "pred": 0.144388,
+      "semantic_score": 0.153332,
+      "frequency_score": 0.434896,
+      "explanation": "Semantic content looks photographic; frequency branch is less sure. Treat as borderline.",
+      "tier": "likely_real",
+      "suggested_policy": "Allow with standard distribution weight."
+    },
+    {
+      "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\dress2.jpg",
+      "pred": 0.333494,
+      "semantic_score": 0.310865,
+      "frequency_score": 0.441026,
+      "explanation": "Semantic content looks photographic; frequency branch is less sure. Treat as borderline.",
+      "tier": "likely_real",
+      "suggested_policy": "Allow with standard distribution weight."
+    },
+    {
+      "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\pizza.jpg",
+      "pred": 0.509879,
+      "semantic_score": 0.543601,
+      "frequency_score": 0.441999,
+      "explanation": "Both branches are uncertain; the fused score sits in the low-confidence band.",
+      "tier": "low_confidence",
+      "suggested_policy": "Flag for reduced distribution weight and queue a secondary automated detector pass."
+    },
+    {
+      "image_path": "C:\\Users\\Sharon\\Desktop\\ai-image-detector\\test-images\\pizza2.jpg",
+      "pred": 0.824072,
+      "semantic_score": 0.854954,
+      "frequency_score": 0.442523,
+      "explanation": "Semantic cues suggest AI generation; the frequency spectrum does not show a strong upsampling signature.",
+      "tier": "likely_ai_generated",
+      "suggested_policy": "Attach an AIGC provenance label and reduce organic distribution rank."
+    }
+  ],
+  "note": "AUC is threshold-free. Quality-robust = mean AUC after JPEG q30, 0.25x resize, blur, and 50% darken applied to BOTH real and AI."
+}

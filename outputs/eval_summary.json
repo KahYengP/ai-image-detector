@@ -1,0 +1,117 @@
+{
+  "auc_clean": 0.546875,
+  "auc_robust": 0.4955357142857143,
+  "final_score": 0.5212053571428572,
+  "unseen_generator_auc": null,
+  "rows": [
+    {
+      "condition": "Clean",
+      "name": "clean",
+      "severity": null,
+      "auc": 0.546875,
+      "n": 16
+    },
+    {
+      "condition": "JPEG q90",
+      "name": "jpeg",
+      "severity": 90,
+      "auc": 0.34375,
+      "n": 16
+    },
+    {
+      "condition": "JPEG q70",
+      "name": "jpeg",
+      "severity": 70,
+      "auc": 0.203125,
+      "n": 16
+    },
+    {
+      "condition": "JPEG q50",
+      "name": "jpeg",
+      "severity": 50,
+      "auc": 0.515625,
+      "n": 16
+    },
+    {
+      "condition": "JPEG q30",
+      "name": "jpeg",
+      "severity": 30,
+      "auc": 0.671875,
+      "n": 16
+    },
+    {
+      "condition": "Blur sigma=0.5",
+      "name": "blur",
+      "severity": 0.5,
+      "auc": 0.546875,
+      "n": 16
+    },
+    {
+      "condition": "Blur sigma=1.0",
+      "name": "blur",
+      "severity": 1.0,
+      "auc": 0.5625,
+      "n": 16
+    },
+    {
+      "condition": "Blur sigma=2.0",
+      "name": "blur",
+      "severity": 2.0,
+      "auc": 0.453125,
+      "n": 16
+    },
+    {
+      "condition": "Resize 0.5x",
+      "name": "resize",
+      "severity": 0.5,
+      "auc": 0.546875,
+      "n": 16
+    },
+    {
+      "condition": "Resize 0.25x",
+      "name": "resize",
+      "severity": 0.25,
+      "auc": 0.5625,
+      "n": 16
+    },
+    {
+      "condition": "Noise sigma=0.02",
+      "name": "noise",
+      "severity": 0.02,
+      "auc": 0.453125,
+      "n": 16
+    },
+    {
+      "condition": "Noise sigma=0.05",
+      "name": "noise",
+      "severity": 0.05,
+      "auc": 0.421875,
+      "n": 16
+    },
+    {
+      "condition": "Noise sigma=0.10",
+      "name": "noise",
+      "severity": 0.1,
+      "auc": 0.390625,
+      "n": 16
+    },
+    {
+      "condition": "Color jitter +/-20%",
+      "name": "color_jitter",
+      "severity": 0.2,
+      "auc": 0.546875,
+      "n": 16
+    },
+    {
+      "condition": "Crop 80%",
+      "name": "center_crop",
+      "severity": 0.8,
+      "auc": 0.71875,
+      "n": 16
+    }
+  ],
+  "error_counts": {
+    "n_fp": 2,
+    "n_fn": 6
+  }
+}

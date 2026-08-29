@@ -1,0 +1,79 @@
+# Central config: training, data paths, and independently toggleable augmentations.
+# Toggle any transform under `augmentations` to run ablations without code changes.
+
+seed: 42
+
+paths:
+  cifake: data/raw/cifake
+  sid_set: data/raw/sid_set
+  wildfake: data/raw/wildfake
+  output_dir: outputs
+  checkpoint: outputs/best.pt
+
+dataset:
+  # cifake | sid_set | wildfake | combined
+  name: cifake
+  image_size: 224
+  # When the source image is larger than image_size, crop instead of downsampling
+  # so high-frequency generator artifacts are not destroyed.
+  prefer_crop: true
+  # SID_Set label 2 = locally tampered; exclude by default (image-level AIGC task).
+  sid_set_include_tampered: false
+  # Never train on the official demonstration split (COCO val2017 + DALL·E Advanced).
+  wildfake_exclude:
+    - coco/val2017
+    - coco_val2017
+    - dalle_advanced
+    - dall-e_advanced
+    - dalle-advanced
+    - dall-e advanced
+    - dalle advanced
+
+model:
+  clip_name: openai/clip-vit-base-patch32
+  freeze_except_last_block: true
+  use_frequency_branch: true
+  dropout: 0.3
+  # Auxiliary BCE on each branch so semantic_score / frequency_score are calibrated.
+  aux_loss_weight: 0.3
+
+train:
+  epochs: 3
+  batch_size: 16
+  lr: 1.0e-4
+  weight_decay: 0.01
+  num_workers: 0
+  max_samples: null
+  val_fraction: 0.1
+
+augmentations:
+  enabled: true
+  # Probability of running the augmentation stack on a given training image.
+  apply_prob: 0.7
+  jpeg:
+    enabled: true
+    qualities: [90, 70, 50, 30]
+  blur:
+    enabled: true
+    sigmas: [0.5, 1.0, 2.0]
+  resize:
+    enabled: true
+    scales: [0.5, 0.25]
+  noise:
+    enabled: true
+    sigmas: [0.02, 0.05, 0.10]
+  color_jitter:
+    enabled: true
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+  center_crop:
+    enabled: true
+    fraction: 0.8
+
+thresholds:
+  likely_real_max: 0.4
+  likely_ai_min: 0.6
+
+eval:
+  max_samples: null

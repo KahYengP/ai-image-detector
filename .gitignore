@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.DS_Store
+Thumbs.db
+
+# Heavy checkpoints (reload CLIP from Hugging Face + train.py to recreate)
+outputs/*.pt
+outputs/*.pth
+outputs/*.history.json
+outputs/predictions.json
+outputs/error_examples/
+*.pt
+*.pth
+
+# Downloaded / smoke image dumps
+data/raw/cifake/
+data/raw/sid_set/
+data/raw/wildfake/
+
+.cache/
