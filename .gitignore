@@ -22,3 +22,5 @@ data/raw/sid_set/
 data/raw/wildfake/
 
 .cache/
+web/uploads/*
+!web/uploads/.gitkeep

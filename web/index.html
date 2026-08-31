@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UM AI Image Detector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css?v=9" />
+  </head>
+  <body>
+    <div class="page-glow"></div>
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">UM</div>
+        <div>
+          <div class="brand-row">
+            <strong>UM</strong>
+            <span class="brand-pill">AI Image Detector</span>
+          </div>
+          <p class="tagline">Instant AI, Real &amp; Filtered Image Analysis.</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span id="engine-pill" class="engine-pill">
+          <span class="dot ready"></span> Detection Engine Ready
+        </span>
+        <button id="check-new-btn" class="ghost-btn hidden" type="button">
+          Check New Images
+          <span id="check-new-count" class="count-badge">0</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="upload-view" class="upload-view">
+      <div class="hero">
+        <div class="hero-badge">✦ Smart Image Authenticity &amp; Detection Engine</div>
+        <h1>AI Image <span>Detector</span></h1>
+        <p class="hero-copy">
+          Effortlessly check whether an image is
+          <em class="c-ai">AI Generated</em>, an
+          <em class="c-real">Authentic Real Photo</em>, or
+          <em class="c-edit">Filtered &amp; Edited</em>
+          with detailed probability graphs.
+        </p>
+      </div>
+
+      <div class="drop-block" id="drop-block">
+        <label class="dropzone" id="dropzone">
+          <input id="file-input" type="file" accept="image/*,.heic,.heif" multiple hidden />
+          <div class="cloud-icon">⬆</div>
+          <p>Drag and drop your images here, or <span>browse files</span></p>
+          <small>Supports single or multiple images • JPG, PNG, WEBP, HEIC</small>
+        </label>
+        <button id="sample-btn" class="sample-btn" type="button">
+          ✦ Load Sample Test Batch (AI, Real, Filtered &amp; Edited)
+        </button>
+      </div>
+
+      <section id="queue" class="queue hidden">
+        <div class="queue-head">
+          <h2 id="queue-title">0 Images Ready for Analysis</h2>
+          <button id="clear-btn" class="text-link" type="button">Clear all</button>
+        </div>
+        <div class="queue-tray">
+          <div id="queue-grid" class="queue-grid"></div>
+        </div>
+      </section>
+
+      <div class="analyze-wrap">
+        <button id="analyze-btn" class="analyze-btn" type="button" disabled>
+          <span class="mag">⌕</span>
+          <span id="analyze-label">Analyze Images</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+    </main>
+
+    <main id="results-view" class="results-view hidden">
+      <section class="results-head">
+        <button id="back-btn" class="icon-btn" type="button" aria-label="Back">←</button>
+        <div class="results-title">
+          <div class="title-row">
+            <h1>Image Analysis Results</h1>
+            <span id="analyzed-count" class="count-chip">0 Images Analyzed</span>
+          </div>
+          <p>Classification breakdown and probability scores</p>
+        </div>
+        <div class="summary-pills" id="summary-pills"></div>
+        <button id="upload-more-btn" class="upload-more" type="button">+ Upload More</button>
+      </section>
+
+      <section class="select-strip">
+        <div class="select-head">
+          <h3 id="select-label">Select Image (0 total):</h3>
+          <p>Click any image to view details and prediction graphs</p>
+        </div>
+        <div id="thumb-row" class="thumb-row"></div>
+      </section>
+
+      <section class="workspace">
+        <article class="inspector card">
+          <div class="card-head">
+            <h3>
+              <img id="inspector-thumb" class="inspector-thumb" alt="" hidden />
+              Visual Image Inspector
+            </h3>
+            <span id="file-size" class="size-chip">—</span>
+          </div>
+          <div class="toolbar">
+            <div class="seg" id="view-modes">
+              <button class="seg-btn active" data-mode="original" type="button">Original</button>
+              <button class="seg-btn" data-mode="heatmap" type="button">Heatmap Scan</button>
+              <button class="seg-btn" data-mode="noise" type="button">Noise Pattern</button>
+              <button class="seg-btn" data-mode="split" type="button">Split View</button>
+            </div>
+            <div class="toolbar-row">
+              <button id="key-areas-btn" class="key-btn" type="button">Key Areas</button>
+              <div class="zoom">
+                <button id="zoom-out" type="button">−</button>
+                <span id="zoom-label">100%</span>
+                <button id="zoom-in" type="button">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="viewport" id="viewport">
+            <img id="view-photo" class="stage-img" alt="" />
+            <img id="fx-photo" class="stage-img fx-photo" alt="" />
+            <canvas id="fx-canvas" class="key-canvas" aria-hidden="true"></canvas>
+            <div id="split-handle" class="split-handle hidden"><span></span></div>
+            <div id="markers" class="markers"></div>
+            <div class="overlay-bar" id="overlay-bar"></div>
+          </div>
+          <p class="view-caption" id="view-caption">Viewing natural full-resolution RGB image pixels</p>
+          <div class="pager">
+            <span id="pager-label">Viewing 1 of 1</span>
+            <div>
+              <button id="prev-btn" class="page-btn" type="button">Previous</button>
+              <button id="next-btn" class="page-btn primary" type="button">Next Image</button>
+            </div>
+          </div>
+        </article>
+
+        <div class="analysis-col">
+          <article id="primary-card" class="primary-card edit">
+            <div class="primary-body">
+              <div class="primary-copy">
+                <div class="primary-kicker">
+                  <span class="kicker-icon">☰</span>
+                  PRIMARY CLASSIFICATION
+                </div>
+                <h2 id="primary-title">Filtered / Edited Photo</h2>
+                <p id="primary-desc"></p>
+              </div>
+              <div class="gauge-wrap">
+                <svg viewBox="0 0 120 120" class="gauge">
+                  <circle cx="60" cy="60" r="48" class="gauge-track"></circle>
+                  <circle id="gauge-arc" cx="60" cy="60" r="48" class="gauge-arc"></circle>
+                </svg>
+                <div class="gauge-label">
+                  <strong id="gauge-pct">0%</strong>
+                  <span>CONFIDENCE</span>
+                </div>
+              </div>
+            </div>
+            <div class="primary-foot">
+              <span id="engine-line">Engine / Sensor: Photo Editing &amp; Retouching</span>
+              <button id="copy-btn" class="copy-btn" type="button">Copy Summary</button>
+            </div>
+          </article>
+
+          <div class="split-cards">
+            <article class="card">
+              <h3>Prediction Score Distribution</h3>
+              <p class="card-sub">3-category breakdown from the fused detector score</p>
+              <div id="dist-list" class="dist-list"></div>
+            </article>
+            <article class="card">
+              <h3>Visual Signal Breakdown</h3>
+              <p class="card-sub">Pattern quality from model branches and CLIP cues</p>
+              <div id="signal-list" class="signal-list"></div>
+            </article>
+          </div>
+
+          <article class="card">
+            <h3>Key Detection Indicators</h3>
+            <ol id="indicator-list" class="indicators"></ol>
+          </article>
+
+          <article class="card meta-card">
+            <button id="meta-toggle" class="meta-toggle" type="button">
+              Image File Specifications &amp; Metadata
+              <span>Show Details ▾</span>
+            </button>
+            <div id="meta-body" class="meta-body hidden"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <div class="spinner-box"><div class="spinner"></div></div>
+        <h2>Analyzing Images</h2>
+        <p id="modal-sub">Processing photos</p>
+        <div class="progress-row">
+          <span>Progress</span>
+          <span id="modal-pct">0%</span>
+        </div>
+        <div class="progress-track"><div id="modal-bar" class="progress-fill"></div></div>
+        <div id="modal-status" class="modal-status">Loading detection engine…</div>
+      </div>
+    </div>
+
+    <script src="/app.js?v=9"></script>
+  </body>
+</html>
