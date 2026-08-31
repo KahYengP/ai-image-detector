@@ -271,9 +271,19 @@ class Handler(SimpleHTTPRequestHandler):
 def main() -> None:
     UPLOADS.mkdir(parents=True, exist_ok=True)
     host, port = "127.0.0.1", 8765
-    httpd = ThreadingHTTPServer((host, port), Handler)
+    ThreadingHTTPServer.allow_reuse_address = False
+    try:
+        httpd = ThreadingHTTPServer((host, port), Handler)
+    except OSError as exc:
+        raise SystemExit(
+            f"Port {port} is already in use. Close the other python web/server.py "
+            f"window, or in PowerShell run:\n"
+            f"  netstat -ano | findstr :{port}\n"
+            f"  taskkill /PID <pid> /F\n({exc})"
+        ) from exc
     print(f"UM detector UI  http://{host}:{port}")
     print("Open that URL, then Analyze or Load Sample Test Batch.")
+    print("Leave this window open. Stop with Ctrl+C.")
     httpd.serve_forever()
 
 

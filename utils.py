@@ -68,18 +68,33 @@ def resolve_checkpoint(cfg: dict[str, Any] | None = None, explicit: str | Path |
     candidates.append(project_root() / "outputs" / "best.pt")
     seen: set[Path] = set()
     unique: list[Path] = []
+    too_small: list[tuple[Path, int]] = []
+    min_bytes = 10 * 1024 * 1024
     for path in candidates:
         path = path.resolve()
         if path in seen:
             continue
         seen.add(path)
         unique.append(path)
-        if path.is_file():
-            return path
+        if not path.is_file():
+            continue
+        size = path.stat().st_size
+        if size < min_bytes:
+            too_small.append((path, size))
+            continue
+        return path
     tried = "\n".join(f"  - {p}" for p in unique)
+    if too_small:
+        detail = "\n".join(f"  - {p} ({n} bytes)" for p, n in too_small)
+        raise FileNotFoundError(
+            "outputs/best.pt is empty or incomplete (pickle error: Ran out of input). "
+            "Do not create a blank best.pt. Copy the real trained file from the original "
+            "computer — it is about 338 MB — into this project's outputs folder.\n"
+            f"Found unusable file(s):\n{detail}"
+        )
     raise FileNotFoundError(
-        "Detection model not found. This is not a public website — each computer "
-        "needs its own copy of outputs/best.pt inside this project folder.\n"
+        "Detection model not found. Clone does not include outputs/best.pt. "
+        "Copy the trained checkpoint into this project folder.\n"
         f"Looked in:\n{tried}"
     )
 

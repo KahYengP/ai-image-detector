@@ -6,43 +6,52 @@ const KEY_AREA_REASONS = {
   AI: [
     {
       title: "High-contrast edge",
-      reason: "Inconsistent pixel grain along this edge. Generative masking often leaves a sharp boundary without optical falloff.",
+      reason:
+        "Inconsistent pixel grain along this edge. Generative masking often leaves a sharp boundary without optical falloff.",
     },
     {
       title: "Facial boundary",
-      reason: "Unnatural smoothing and weak camera-sensor noise near facial contours. Diffusion models often flatten pores and jaw edges.",
+      reason:
+        "Unnatural smoothing and weak camera-sensor noise near facial contours. Diffusion models often flatten pores and jaw edges.",
     },
     {
       title: "Texture / fabric",
-      reason: "Repeating frequency patterns here. Diffusion textures often loop or smear instead of showing real sensor grain.",
+      reason:
+        "Repeating frequency patterns here. Diffusion textures often loop or smear instead of showing real sensor grain.",
     },
   ],
   filtered_or_edited: [
     {
       title: "Retouch boundary",
-      reason: "Compression and retouching show up here as a sharpened contrast step — typical of beauty filters or local dodge/burn.",
+      reason:
+        "Compression and retouching show up here as a sharpened contrast step — typical of beauty filters or local dodge/burn.",
     },
     {
       title: "Skin / face",
-      reason: "Local smoothing reduces natural sensor grain on skin while nearby edges stay photographic. That mix is a filter/edit signature.",
+      reason:
+        "Local smoothing reduces natural sensor grain on skin while nearby edges stay photographic. That mix is a filter/edit signature.",
     },
     {
       title: "Tonal patch",
-      reason: "Color grading or frequency-domain edits are strongest in this patch (uneven contrast vs the rest of the frame).",
+      reason:
+        "Color grading or frequency-domain edits are strongest in this patch (uneven contrast vs the rest of the frame).",
     },
   ],
   real: [
     {
       title: "Optical edge",
-      reason: "Strong natural edge energy and photon noise. This is a high-detail camera region, not a synthetic mask.",
+      reason:
+        "Strong natural edge energy and photon noise. This is a high-detail camera region, not a synthetic mask.",
     },
     {
       title: "Facial detail",
-      reason: "Local contrast around features matches lens optics and sensor grain, not over-smoothed generation.",
+      reason:
+        "Local contrast around features matches lens optics and sensor grain, not over-smoothed generation.",
     },
     {
       title: "Texture detail",
-      reason: "Fabric or background grain here matches camera sensor noise. The frequency residual does not look tiled or synthesized.",
+      reason:
+        "Fabric or background grain here matches camera sensor noise. The frequency residual does not look tiled or synthesized.",
     },
   ],
 };
@@ -50,11 +59,13 @@ const KEY_AREA_REASONS = {
 const CUE_LABELS = {
   hands: "Hand / finger geometry looks melted, extra, or floating",
   garbled_text: "Text, logos, or numerals look scrambled rather than readable",
-  ai_product: "Product surface looks CGI-smooth (uniform texture, weak stitching)",
+  ai_product:
+    "Product surface looks CGI-smooth (uniform texture, weak stitching)",
   fake_live: "Livestream still looks slightly unreal or plastic",
   accessories: "Accessories (earrings, glasses) look mismatched",
   background: "Background objects merge, bend, or lose physical structure",
-  plastic_skin: "Skin looks poreless / over-smoothed beyond a light beauty filter",
+  plastic_skin:
+    "Skin looks poreless / over-smoothed beyond a light beauty filter",
   skin_texture: "Skin texture energy is unusually flat",
   ai_render: "CLIP content cues lean synthetic / rendered",
   watermark: "Generator-style corner watermark detected",
@@ -137,11 +148,17 @@ function clamp01(x) {
 
 function viewModel(rec) {
   const pred = Number(rec.pred);
-  const scores = Number.isFinite(pred) ? threeWay(pred) : { real: 0.33, filtered: 0.34, ai: 0.33 };
+  const scores = Number.isFinite(pred)
+    ? threeWay(pred)
+    : { real: 0.33, filtered: 0.34, ai: 0.33 };
   const result = rec.result || "filtered_or_edited";
   const meta = RESULT_META[result] || RESULT_META.filtered_or_edited;
   const primary =
-    result === "AI" ? scores.ai : result === "real" ? scores.real : scores.filtered;
+    result === "AI"
+      ? scores.ai
+      : result === "real"
+        ? scores.real
+        : scores.filtered;
   const vis = (rec.artifact_cues && rec.artifact_cues.visual) || {};
   const freq = rec.frequency_score == null ? 0.5 : Number(rec.frequency_score);
   const sem = rec.semantic_score == null ? pred : Number(rec.semantic_score);
@@ -167,13 +184,21 @@ function viewModel(rec) {
     {
       name: "Metadata Profile",
       value: cues.provenance_ai || cues.c2pa ? 0.18 : 0.82,
-      hint: cues.provenance_ai || cues.c2pa
-        ? "Generator / C2PA tags found in the file"
-        : "No embedded generator credentials detected",
+      hint:
+        cues.provenance_ai || cues.c2pa
+          ? "Generator / C2PA tags found in the file"
+          : "No embedded generator credentials detected",
     },
     {
       name: "Edge Realism",
-      value: clamp01(1 - Math.max(Number(vis.hands || 0), Number(vis.garbled_text || 0), Number(vis.accessories || 0))),
+      value: clamp01(
+        1 -
+          Math.max(
+            Number(vis.hands || 0),
+            Number(vis.garbled_text || 0),
+            Number(vis.accessories || 0),
+          ),
+      ),
       hint: "Natural boundary definition vs melted hands or garbled text",
     },
   ];
@@ -193,20 +218,39 @@ function viewModel(rec) {
   }
   if (Number.isFinite(sem) && Number.isFinite(freq)) {
     if (result === "AI" && sem > freq) {
-      indicators.push("Decision is driven more by semantic content cues than frequency artifacts.");
+      indicators.push(
+        "Decision is driven more by semantic content cues than frequency artifacts.",
+      );
     } else if (result === "AI" && freq > sem) {
-      indicators.push("Frequency residual is the stronger AI tell on this still.");
+      indicators.push(
+        "Frequency residual is the stronger AI tell on this still.",
+      );
     } else if (result === "real") {
-      indicators.push("Base composition and optical perspective remain consistent with a camera photo.");
+      indicators.push(
+        "Base composition and optical perspective remain consistent with a camera photo.",
+      );
     } else {
-      indicators.push("Base composition stays photographic; the mid-band score points to filters or retouching rather than full synthesis.");
+      indicators.push(
+        "Base composition stays photographic; the mid-band score points to filters or retouching rather than full synthesis.",
+      );
     }
   }
   while (indicators.length < 3) {
     indicators.push("No additional hard artifact cue fired on this image.");
   }
 
-  return { rec, scores, primary, meta, signals, indicators: indicators.slice(0, 5), sem, freq, vis, cues };
+  return {
+    rec,
+    scores,
+    primary,
+    meta,
+    signals,
+    indicators: indicators.slice(0, 5),
+    sem,
+    freq,
+    vis,
+    cues,
+  };
 }
 
 function fileUrl(file) {
@@ -215,8 +259,10 @@ function fileUrl(file) {
 
 function renderQueue() {
   const q = $("queue");
-  $("queue-title").textContent = `${state.files.length} Image${state.files.length === 1 ? "" : "s"} Ready for Analysis`;
-  $("analyze-label").textContent = `Analyze ${state.files.length} Image${state.files.length === 1 ? "" : "s"}`;
+  $("queue-title").textContent =
+    `${state.files.length} Image${state.files.length === 1 ? "" : "s"} Ready for Analysis`;
+  $("analyze-label").textContent =
+    `Analyze ${state.files.length} Image${state.files.length === 1 ? "" : "s"}`;
   $("analyze-btn").disabled = state.files.length === 0;
   q.classList.toggle("hidden", state.files.length === 0);
   $("queue-grid").innerHTML = state.files
@@ -227,14 +273,15 @@ function renderQueue() {
         <div class="queue-thumb"><img src="${f.preview}" alt="" /></div>
         <strong title="${f.name}">${f.name}</strong>
         <small>${fmtSize(f.size)}</small>
-      </div>`
+      </div>`,
     )
     .join("");
 }
 
 function addFiles(fileList) {
   for (const file of fileList) {
-    if (!file.type.startsWith("image/") && !/\.(heic|heif)$/i.test(file.name)) continue;
+    if (!file.type.startsWith("image/") && !/\.(heic|heif)$/i.test(file.name))
+      continue;
     state.files.push({
       name: file.name,
       size: file.size,
@@ -252,7 +299,8 @@ function classCounts(results) {
 }
 
 function renderThumbs() {
-  $("select-label").textContent = `Select Image (${state.results.length} total):`;
+  $("select-label").textContent =
+    `Select Image (${state.results.length} total):`;
   $("thumb-row").innerHTML = state.results
     .map((raw, i) => {
       const vm = viewModel(raw);
@@ -281,9 +329,24 @@ function setGauge(pct, key) {
 
 function renderDistribution(vm) {
   const rows = [
-    { key: "ai", label: "AI Generated", pct: vm.scores.ai, hint: "Synthetic diffusion textures, generative pixel synthesis, or AI model generation" },
-    { key: "real", label: "Real Photo", pct: vm.scores.real, hint: "Authentic camera sensor photon noise & natural optical lens depth of field" },
-    { key: "edit", label: "Filtered & Edited", pct: vm.scores.filtered, hint: "Color grading presets, tone mapping filters, retouching, or software adjustments" },
+    {
+      key: "ai",
+      label: "AI Generated",
+      pct: vm.scores.ai,
+      hint: "Synthetic diffusion textures, generative pixel synthesis, or AI model generation",
+    },
+    {
+      key: "real",
+      label: "Real Photo",
+      pct: vm.scores.real,
+      hint: "Authentic camera sensor photon noise & natural optical lens depth of field",
+    },
+    {
+      key: "edit",
+      label: "Filtered & Edited",
+      pct: vm.scores.filtered,
+      hint: "Color grading presets, tone mapping filters, retouching, or software adjustments",
+    },
   ];
   const primaryKey = vm.meta.key;
   $("dist-list").innerHTML = rows
@@ -311,14 +374,17 @@ function renderSignals(vm) {
         <div class="signal-top"><span>${s.name}</span><span>${Math.round(s.value * 100)}%</span></div>
         <div class="bar signal"><span style="width:${Math.round(s.value * 100)}%"></span></div>
         <p>${s.hint}</p>
-      </div>`
+      </div>`,
     )
     .join("");
 }
 
 function renderIndicators(vm) {
   $("indicator-list").innerHTML = vm.indicators
-    .map((line, i) => `<li><span class="num">${i + 1}</span><span>${line}</span></li>`)
+    .map(
+      (line, i) =>
+        `<li><span class="num">${i + 1}</span><span>${line}</span></li>`,
+    )
     .join("");
 }
 
@@ -328,13 +394,22 @@ function renderMeta(vm) {
     ["Filename", r.image_path],
     ["Class", vm.meta.title],
     ["Fused P(AI)", r.pred == null ? "—" : Number(r.pred).toFixed(4)],
-    ["Semantic branch", r.semantic_score == null ? "—" : Number(r.semantic_score).toFixed(4)],
-    ["Frequency branch", r.frequency_score == null ? "—" : Number(r.frequency_score).toFixed(4)],
+    [
+      "Semantic branch",
+      r.semantic_score == null ? "—" : Number(r.semantic_score).toFixed(4),
+    ],
+    [
+      "Frequency branch",
+      r.frequency_score == null ? "—" : Number(r.frequency_score).toFixed(4),
+    ],
     ["Tier", r.tier || "—"],
     ["C2PA", vm.cues.c2pa ? "yes" : "no"],
     ["Provenance AI", vm.cues.provenance_ai ? "yes" : "no"],
     ["Fired cues", (vm.cues.fired || []).join(", ") || "none"],
-    ["CLIP overall AI", vm.vis.overall_ai == null ? "—" : Number(vm.vis.overall_ai).toFixed(3)],
+    [
+      "CLIP overall AI",
+      vm.vis.overall_ai == null ? "—" : Number(vm.vis.overall_ai).toFixed(3),
+    ],
     ["File size", fmtSize(r.file_size)],
     ["Pixels", r.width && r.height ? `${r.width} × ${r.height}` : "—"],
   ];
@@ -381,9 +456,11 @@ function convolveGray(src, w, h, kernel) {
 }
 
 function coverDraw(ctx, img, W, H) {
-  const s = Math.max(W / img.width, H / img.height);
-  const dw = img.width * s;
-  const dh = img.height * s;
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const s = Math.min(W / iw, H / ih);
+  const dw = iw * s;
+  const dh = ih * s;
   const ox = (W - dw) / 2;
   const oy = (H - dh) / 2;
   ctx.clearRect(0, 0, W, H);
@@ -392,9 +469,19 @@ function coverDraw(ctx, img, W, H) {
 }
 
 function setClip(el, split) {
-  const value = split == null ? "none" : `inset(0 0 0 ${(split * 100).toFixed(2)}%)`;
+  const value =
+    split == null ? "none" : `inset(0 0 0 ${(split * 100).toFixed(2)}%)`;
   el.style.clipPath = value;
   el.style.webkitClipPath = value;
+}
+
+function sizeViewport(img) {
+  const vp = $("viewport");
+  if (!vp || !img || !img.naturalWidth) return;
+  const width = vp.clientWidth || vp.parentElement.clientWidth || 640;
+  const fitted = Math.round(width * (img.naturalHeight / img.naturalWidth));
+  const maxH = Math.round(Math.min(window.innerHeight * 0.68, 680));
+  vp.style.height = `${Math.max(240, Math.min(fitted, maxH))}px`;
 }
 
 function applyViewMode() {
@@ -404,13 +491,17 @@ function applyViewMode() {
   const zoom = `scale(${state.zoom})`;
   photo.style.transform = zoom;
   fx.style.transform = zoom;
+  const markers = $("markers");
+  if (markers) markers.style.transform = zoom;
   fx.classList.remove("mode-heatmap", "mode-noise", "mode-split");
   if (state.mode === "original") {
     setClip(fx, null);
     handle.classList.add("hidden");
     return;
   }
-  fx.classList.add(state.mode === "split" ? "mode-split" : `mode-${state.mode}`);
+  fx.classList.add(
+    state.mode === "split" ? "mode-split" : `mode-${state.mode}`,
+  );
   if (state.mode === "split") {
     setClip(fx, state.split);
     handle.classList.remove("hidden");
@@ -422,61 +513,96 @@ function applyViewMode() {
 }
 
 function processFrame(img) {
-  applyViewMode();
+  sizeViewport(img);
   const vp = $("viewport");
+  void vp.offsetHeight;
+  applyViewMode();
   const canvas = $("fx-canvas");
   const W = Math.max(1, vp.clientWidth);
   const H = Math.max(1, vp.clientHeight);
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  coverDraw(ctx, img, W, H);
+  state.layout = coverDraw(ctx, img, W, H);
   try {
-    return findKeyAreas(ctx, W, H);
+    return findKeyAreas(ctx, state.layout);
   } catch {
     return [];
   }
 }
 
-function findKeyAreas(ctx, w, h) {
-  if (w < 8 || h < 8) return [];
-  const data = ctx.getImageData(0, 0, w, h).data;
-  const cells = [];
-  const gw = 6;
+function findKeyAreas(ctx, layout) {
+  const { ox, oy, dw, dh, W, H } = layout || {};
+  if (!W || !H || dw < 16 || dh < 16) return [];
+  const pad = Math.max(10, Math.round(Math.min(dw, dh) * 0.06));
+  const barPad = oy + dh > H - 56 ? 48 : pad;
+  const x0 = Math.max(0, Math.floor(ox + pad));
+  const y0 = Math.max(0, Math.floor(oy + pad));
+  const x1 = Math.min(W, Math.ceil(ox + dw - pad));
+  const y1 = Math.min(H, Math.ceil(oy + dh - barPad));
+  const rw = x1 - x0;
+  const rh = y1 - y0;
+  if (rw < 16 || rh < 16) return [];
+  const data = ctx.getImageData(0, 0, W, H).data;
+  const gw = 4;
   const gh = 5;
-  const cw = Math.floor(w / gw);
-  const ch = Math.floor(h / gh);
-  if (cw < 2 || ch < 2) return [];
+  const cw = rw / gw;
+  const ch = rh / gh;
+  const cells = [];
   for (let gy = 0; gy < gh; gy++) {
     for (let gx = 0; gx < gw; gx++) {
       let sum = 0;
       let sum2 = 0;
       let n = 0;
-      for (let y = gy * ch; y < (gy + 1) * ch; y += 2) {
-        for (let x = gx * cw; x < (gx + 1) * cw; x += 2) {
-          const i = (y * w + x) * 4;
+      const xa = Math.floor(x0 + gx * cw);
+      const xb = Math.floor(x0 + (gx + 1) * cw);
+      const ya = Math.floor(y0 + gy * ch);
+      const yb = Math.floor(y0 + (gy + 1) * ch);
+      for (let y = ya; y < yb; y += 2) {
+        for (let x = xa; x < xb; x += 2) {
+          const i = (y * W + x) * 4;
           const v = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
           sum += v;
           sum2 += v * v;
           n++;
         }
       }
-      const mean = sum / Math.max(n, 1);
-      const varr = sum2 / Math.max(n, 1) - mean * mean;
-      cells.push({ x: (gx + 0.5) * cw, y: (gy + 0.5) * ch, varr });
+      if (n < 8) continue;
+      const mean = sum / n;
+      if (mean < 8) continue;
+      const varr = sum2 / n - mean * mean;
+      cells.push({
+        x: xa + (xb - xa) / 2,
+        y: ya + (yb - ya) / 2,
+        varr,
+      });
     }
   }
   cells.sort((a, b) => b.varr - a.varr);
-  return cells.slice(0, 3);
+  const minDist = Math.min(rw, rh) * 0.32;
+  const picked = [];
+  for (const c of cells) {
+    if (picked.some((p) => Math.hypot(p.x - c.x, p.y - c.y) < minDist)) continue;
+    picked.push(c);
+    if (picked.length >= 3) break;
+  }
+  return picked;
 }
 
 function explainKeyArea(vm, point, index, height) {
-  const bank = KEY_AREA_REASONS[vm?.rec?.result] || KEY_AREA_REASONS.filtered_or_edited;
+  const bank =
+    KEY_AREA_REASONS[vm?.rec?.result] || KEY_AREA_REASONS.filtered_or_edited;
+  const layout = state.layout;
+  const relY = layout?.dh
+    ? (point.y - layout.oy) / layout.dh
+    : point.y / Math.max(height, 1);
   let slot = 1;
-  if (point.y < height * 0.33) slot = 0;
-  else if (point.y > height * 0.62) slot = 2;
+  if (relY < 0.33) slot = 0;
+  else if (relY > 0.62) slot = 2;
   const copy = bank[(slot + index) % bank.length];
-  const cue = (vm?.indicators || []).find((line) => line && !line.startsWith("No additional"));
+  const cue = (vm?.indicators || []).find(
+    (line) => line && !line.startsWith("No additional"),
+  );
   const note = cue && index === 0 ? cue : copy.reason;
   return { title: copy.title, reason: note };
 }
@@ -488,13 +614,22 @@ function drawMarkers(points) {
   const raw = state.results[state.index];
   const vm = raw ? viewModel(raw) : null;
   const vp = $("viewport");
-  const width = vp.clientWidth || 640;
+  const layout = state.layout;
   const height = vp.clientHeight || 520;
+  const width = vp.clientWidth || 640;
+  const imgTop = layout ? layout.oy : 0;
+  const imgLeft = layout ? layout.ox : 0;
+  const imgRight = layout ? layout.ox + layout.dw : width;
   const tipW = Math.min(250, Math.max(180, width - 24));
   for (const [i, p] of points.entries()) {
     const info = explainKeyArea(vm, p, i, height);
-    const side = p.x < tipW / 2 + 12 ? "tip-start" : p.x > width - tipW / 2 - 12 ? "tip-end" : "";
-    const vert = p.y < 110 ? "tip-below" : p.y > height - 110 ? "tip-above" : "tip-above";
+    const side =
+      p.x < imgLeft + tipW / 2
+        ? "tip-start"
+        : p.x > imgRight - tipW / 2 - 12
+          ? "tip-end"
+          : "";
+    const vert = p.y < imgTop + 110 ? "tip-below" : "tip-above";
     const el = document.createElement("button");
     el.type = "button";
     el.className = `marker ${vert} ${side}`.trim();
@@ -524,9 +659,12 @@ async function renderInspector(vm) {
   `;
   const captions = {
     original: "Viewing natural full-resolution RGB image pixels",
-    heatmap: "Heatmap Scan: contrast 220% · saturate 280% · hue-rotate 190° to highlight compression boundaries.",
-    noise: "Noise Pattern: grayscale + invert + contrast 350% to isolate high-frequency pixel grain.",
-    split: "Drag slider left/right to compare original photo against heatmap scan.",
+    heatmap:
+      "Heatmap Scan: contrast 220% · saturate 280% · hue-rotate 190° to highlight compression boundaries.",
+    noise:
+      "Noise Pattern: grayscale + invert + contrast 350% to isolate high-frequency pixel grain.",
+    split:
+      "Drag slider left/right to compare original photo against heatmap scan.",
   };
   $("view-caption").textContent = captions[state.mode];
   $("zoom-label").textContent = `${Math.round(state.zoom * 100)}%`;
@@ -560,7 +698,8 @@ function renderSelected() {
   renderSignals(vm);
   renderIndicators(vm);
   renderMeta(vm);
-  $("pager-label").textContent = `Viewing ${state.index + 1} of ${state.results.length}`;
+  $("pager-label").textContent =
+    `Viewing ${state.index + 1} of ${state.results.length}`;
   $("prev-btn").disabled = state.index === 0;
   $("next-btn").disabled = state.index >= state.results.length - 1;
   renderThumbs();
@@ -573,8 +712,14 @@ function renderSummary() {
   $("check-new-count").textContent = String(n);
   const c = classCounts(state.results);
   const parts = [];
-  if (c.real) parts.push(`<span class="pill real">● ${c.real} Real Photo${c.real > 1 ? "s" : ""}</span>`);
-  if (c.filtered_or_edited) parts.push(`<span class="pill edit">● ${c.filtered_or_edited} Filtered &amp; Edited</span>`);
+  if (c.real)
+    parts.push(
+      `<span class="pill real">● ${c.real} Real Photo${c.real > 1 ? "s" : ""}</span>`,
+    );
+  if (c.filtered_or_edited)
+    parts.push(
+      `<span class="pill edit">● ${c.filtered_or_edited} Filtered &amp; Edited</span>`,
+    );
   if (c.AI) parts.push(`<span class="pill ai">● ${c.AI} AI Generated</span>`);
   $("summary-pills").innerHTML = parts.join("");
 }
@@ -616,12 +761,19 @@ async function fileToPayload(entry) {
 }
 
 async function analyze(payloadFiles, { sample = false } = {}) {
-  setModal(true, 8, "Loading detection engine…", `Processing ${payloadFiles.length || "sample"} photos`);
+  setModal(
+    true,
+    8,
+    "Loading detection engine…",
+    `Processing ${payloadFiles.length || "sample"} photos`,
+  );
   const tick = setInterval(() => {
     const cur = parseFloat($("modal-bar").style.width) || 8;
-    if (cur < 90) setModal(true, cur + Math.random() * 6, $("modal-status").textContent);
+    if (cur < 90)
+      setModal(true, cur + Math.random() * 6, $("modal-status").textContent);
   }, 400);
-  $("engine-pill").innerHTML = '<span class="dot busy"></span> Detection Engine Busy';
+  $("engine-pill").innerHTML =
+    '<span class="dot busy"></span> Detection Engine Busy';
   try {
     const res = await fetch(sample ? "/api/sample" : "/api/analyze", {
       method: "POST",
@@ -640,7 +792,8 @@ async function analyze(payloadFiles, { sample = false } = {}) {
   } finally {
     clearInterval(tick);
     setModal(false, 0);
-    $("engine-pill").innerHTML = '<span class="dot ready"></span> Detection Engine Ready';
+    $("engine-pill").innerHTML =
+      '<span class="dot ready"></span> Detection Engine Ready';
   }
 }
 
@@ -726,7 +879,9 @@ $("zoom-out").addEventListener("click", () => {
 });
 $("meta-toggle").addEventListener("click", () => {
   $("meta-body").classList.toggle("hidden");
-  $("meta-toggle").querySelector("span").textContent = $("meta-body").classList.contains("hidden")
+  $("meta-toggle").querySelector("span").textContent = $(
+    "meta-body",
+  ).classList.contains("hidden")
     ? "Show Details ▾"
     : "Hide Details ▴";
 });
@@ -751,7 +906,10 @@ $("copy-btn").addEventListener("click", async () => {
 
 function setSplit(clientX) {
   const rect = $("viewport").getBoundingClientRect();
-  state.split = Math.min(0.92, Math.max(0.08, (clientX - rect.left) / rect.width));
+  state.split = Math.min(
+    0.92,
+    Math.max(0.08, (clientX - rect.left) / rect.width),
+  );
   setClip($("fx-photo"), state.split);
   $("split-handle").style.left = `${state.split * 100}%`;
 }
@@ -780,7 +938,6 @@ $("key-areas-btn").classList.add("active");
 window.addEventListener("resize", () => {
   tightenDistLabels();
   if (!$("results-view").classList.contains("hidden") && state.img) {
-    processFrame(state.img);
+    drawMarkers(processFrame(state.img));
   }
 });
-

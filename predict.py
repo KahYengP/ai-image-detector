@@ -65,10 +65,24 @@ def resolve_image_dir(raw: str | None) -> Path:
 
 
 def load_checkpoint(path: Path, device: torch.device) -> tuple[AIGCDetector, dict]:
+    path = Path(path)
+    size = path.stat().st_size if path.is_file() else 0
+    if size < 10 * 1024 * 1024:
+        raise FileNotFoundError(
+            f"{path} is empty or not a real checkpoint ({size} bytes). "
+            "Copy the trained outputs/best.pt (~338 MB) from the original project. "
+            "Creating a blank best.pt file will fail with 'Ran out of input'."
+        )
     try:
         payload = torch.load(path, map_location=device, weights_only=False)
     except TypeError:
         payload = torch.load(path, map_location=device)
+    except EOFError as exc:
+        raise FileNotFoundError(
+            f"{path} is truncated or corrupt ({size} bytes). "
+            "Re-copy the full outputs/best.pt (~338 MB). "
+            "A GitHub clone, empty file, or incomplete download will not work."
+        ) from exc
     cfg = payload["config"]
     model = AIGCDetector(cfg).to(device)
     model.load_state_dict(payload["model_state"])
