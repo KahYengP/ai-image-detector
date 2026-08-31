@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 
 from data.augmentations import ModelTransform
 from predict import load_checkpoint, predict_image
-from utils import IMAGE_EXTS, get_device, list_images, load_config, project_root
+from utils import IMAGE_EXTS, get_device, list_images, load_config, project_root, resolve_checkpoint
 
 _MODEL = None
 _LOCK = threading.Lock()
@@ -35,9 +35,7 @@ def _engine():
         if _MODEL is None:
             cfg = load_config()
             device = get_device(None)
-            ckpt = Path(cfg["paths"]["checkpoint"])
-            if not ckpt.is_absolute():
-                ckpt = project_root() / ckpt
+            ckpt = resolve_checkpoint(cfg)
             model, saved = load_checkpoint(ckpt, device)
             transform = ModelTransform(saved, augment=False)
             thresholds = saved.get("thresholds") or cfg.get("thresholds") or {}

@@ -55,6 +55,35 @@ def resolve_path(cfg: dict[str, Any], key: str) -> Path:
     return raw if raw.is_absolute() else project_root() / raw
 
 
+def resolve_checkpoint(cfg: dict[str, Any] | None = None, explicit: str | Path | None = None) -> Path:
+    """Find outputs/best.pt even if config still has another machine's absolute path."""
+    cfg = cfg or load_config()
+    raw = Path(explicit) if explicit else Path(str((cfg.get("paths") or {}).get("checkpoint") or "outputs/best.pt"))
+    candidates: list[Path] = []
+    if raw.is_absolute():
+        candidates.append(raw)
+        candidates.append(project_root() / "outputs" / raw.name)
+    else:
+        candidates.append(project_root() / raw)
+    candidates.append(project_root() / "outputs" / "best.pt")
+    seen: set[Path] = set()
+    unique: list[Path] = []
+    for path in candidates:
+        path = path.resolve()
+        if path in seen:
+            continue
+        seen.add(path)
+        unique.append(path)
+        if path.is_file():
+            return path
+    tried = "\n".join(f"  - {p}" for p in unique)
+    raise FileNotFoundError(
+        "Detection model not found. This is not a public website — each computer "
+        "needs its own copy of outputs/best.pt inside this project folder.\n"
+        f"Looked in:\n{tried}"
+    )
+
+
 def count_parameters(model: torch.nn.Module) -> tuple[int, int]:
     """Return (total, trainable) parameter counts."""
     total = sum(p.numel() for p in model.parameters())
