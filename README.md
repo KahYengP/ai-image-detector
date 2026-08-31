@@ -2,56 +2,117 @@
 
 Local web app and CLI that score stills as **real**, **filtered / edited**, or **AI-generated**. The model is a two-branch detector (CLIP ViT-B/32 semantic + FFT CNN) fused by a small MLP.
 
-This is **not a hosted website**. After a GitHub clone, each computer must run the server locally and have a copy of the trained weights.
+This is **not a hosted website**. After you clone the repo, run the server on your own computer and download the trained weights (GitHub cannot store the 338 MB checkpoint).
 
 ---
 
-## Run the website
+## Setup (clone → run)
 
-Python 3.10+ (GPU optional; CPU works).
+Need **Python 3.10+**. A GPU is optional; CPU works.
 
-```bash
+### 1. Clone and create a virtual environment
+
+**Windows (PowerShell or Command Prompt)**
+
+```bat
+git clone https://github.com/KahYengP/ai-image-detector.git
+cd ai-image-detector
 python -m venv .venv
-# Windows
 .venv\Scripts\activate
-# macOS / Linux
-# source .venv/bin/activate
-
-pip install -r requirements.txt
-python web/server.py
 ```
 
-Open **http://127.0.0.1:8765**
+**macOS / Linux**
 
-- Drag in one or more JPG / PNG / WEBP / HEIC files, or click **Load Sample Test Batch**
-- Click **Analyze Images**
-- Use **Original / Heatmap Scan / Noise Pattern / Split View** on the results page. Heatmap and noise are CSS inspection filters (`contrast` / `hue-rotate` / inverted grayscale), not Grad-CAM. Orange **!** markers are high local-contrast patches; hover them for a short explanation.
+```bash
+git clone https://github.com/KahYengP/ai-image-detector.git
+cd ai-image-detector
+python -m venv .venv
+source .venv/bin/activate
+```
 
-Leave the terminal open while you use the app. Stop with `Ctrl+C`.
+You should see `(.venv)` at the start of the terminal line after activate.
 
-First load downloads `openai/clip-vit-base-patch32` from Hugging Face (~350 MB) if it is not cached.
+### 2. Install Python packages
 
----
+With `.venv` still active:
 
-## Checkpoint (`outputs/best.pt`)
+```bat
+pip install -r requirements.txt
+```
 
-`*.pt` files are **gitignored**. A clone does **not** include the model.
+The first Analyze also downloads `openai/clip-vit-base-patch32` from Hugging Face (~350 MB) if it is not already cached.
 
-| What | Detail |
-| --- | --- |
-| Path | `outputs/best.pt` (see `config.yaml` `paths.checkpoint`) |
-| Size | about **338 MB** |
-| How to share | copy the file via Drive, OneDrive, or USB — not GitHub (over the 100 MB limit) |
+### 3. Download the trained model (`outputs/best.pt`)
+
+The checkpoint is **not** in git. Download it from Google Drive (anyone with the link can view/download):
+
+**[Download best.pt](https://drive.google.com/file/d/1oa6eWCfhXICZx3Kkt0JYn-JHABARJgFD/view?usp=sharing)**
+
+1. Open the link and click **Download**.
+2. Confirm the file is about **338 MB** (345,520 KB). If it is 0 KB or a few bytes, the download failed — try again from the Drive page, not a blank file you created yourself.
+3. Rename it to `best.pt` if the browser added extra text.
+4. Put it here (create the `outputs` folder if needed):
+
+```text
+ai-image-detector/outputs/best.pt
+```
 
 Do **not** create an empty `best.pt`. PyTorch will fail with `Ran out of input`.
 
-If Analyze fails with a path like `/Users/.../outputs/best.pt`, that machine still has an old absolute path in `config.yaml`. Set:
+In `config.yaml`, `paths.checkpoint` must stay:
 
 ```yaml
 checkpoint: outputs/best.pt
 ```
 
-then put the real 338 MB file in this project’s `outputs/` folder.
+### 4. Start the website
+
+Keep `.venv` active. Leave this terminal open while you use the app.
+
+**Windows**
+
+```bat
+.venv\Scripts\activate
+python web\server.py
+```
+
+**macOS / Linux**
+
+```bash
+source .venv/bin/activate
+python web/server.py
+```
+
+In a browser open **http://127.0.0.1:8765**
+
+- Drag in one or more JPG / PNG / WEBP / HEIC files, or click **Load Sample Test Batch**
+- Click **Analyze Images**
+- Use **Original / Heatmap Scan / Noise Pattern / Split View** on the results page. Heatmap and noise are CSS inspection filters (`contrast` / `hue-rotate` / inverted grayscale), not Grad-CAM. Orange **!** markers are high local-contrast patches; hover them for a short explanation.
+
+Stop the server with `Ctrl+C`.
+
+If Windows says port 8765 is already in use, close the other server window, or in PowerShell run:
+
+```bat
+netstat -ano | findstr :8765
+taskkill /PID <pid> /F
+```
+
+Then start `python web\server.py` again.
+
+---
+
+## Checkpoint (`outputs/best.pt`)
+
+`*.pt` files are **gitignored** (GitHub file-size limit). Every clone must download the same weights.
+
+| What | Detail |
+| --- | --- |
+| Path | `outputs/best.pt` |
+| Size | about **338 MB** |
+| Download | [Google Drive — best.pt](https://drive.google.com/file/d/1oa6eWCfhXICZx3Kkt0JYn-JHABARJgFD/view?usp=sharing) |
+
+If Analyze fails with a path like `/Users/.../outputs/best.pt`, that machine still has an old absolute path in `config.yaml`. Set `checkpoint: outputs/best.pt` and keep the real file in this project’s `outputs/` folder.
 
 ---
 
@@ -143,7 +204,7 @@ web/
 train images/            # labeled stills (filename prefixes)
 test-images/             # optional extra labeled stills
 outputs/
-  best.pt                # trained weights — copy this; not in git
+  best.pt                # trained weights — download from Google Drive (not in git)
   predictions.json       # last CLI / web run
 data/                    # loaders + augmentations
 models/                  # CLIP, FFT CNN, fusion, explanations
