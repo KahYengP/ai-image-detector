@@ -17,7 +17,9 @@ LOW = 0.28
 
 _CUE_LABELS = {
     "hands": "hand/finger errors (extra, floating, or melted digits)",
-    "garbled_text": "scrambled or unreadable text",
+    "garbled_text": "scrambled or unreadable text (signs, labels, watch faces)",
+    "ai_product": "too-perfect rendered product (uniform texture, melted stitching)",
+    "fake_live": "plastic livestream still that looks slightly unreal",
     "accessories": "mismatched earrings or glasses",
     "background": "background objects that merge or bend unnaturally",
     "plastic_skin": "over-smoothed, poreless skin and overly perfect lighting",

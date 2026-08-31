@@ -71,6 +71,8 @@ class Sample:
     # Optional Hugging Face row pointer so we do not materialize the whole set.
     hf_index: Optional[int] = None
     generator: Optional[str] = None
+    # Soft training target in [0, 1]. Falls back to `label` when unset.
+    target: Optional[float] = None
 
 
 def _open_rgb(path: Path) -> Image.Image:
@@ -233,15 +235,43 @@ def _guess_generator(path: Path) -> Optional[str]:
     return None
 
 
-def _human_label_from_name(stem: str) -> Optional[tuple[int, str]]:
-    """Map `train images` filename prefixes to (label, generator).
+# Soft targets match the three inference bands: likely_real / filters_or_edited / likely_ai.
+# Edited/filtered photos are NOT AIGC — keep them in the middle band, well below likely_ai.
+# Product/live AI must sit high so they are not parked in filters_or_edited.
+_HUMAN_SOFT_TARGET = {
+    "real": 0.08,
+    "real_blur": 0.08,
+    "real_live": 0.08,
+    "edited_filtered": 0.36,
+    "filtered_edited": 0.36,
+    "ai_generated": 0.92,
+    "ai_generated_live": 0.94,
+    "ai_generated_product": 0.94,
+}
+# Repeat scarce / easily-confused groups so the trainer sees them every epoch.
+_HUMAN_MIN_TRAIN = {
+    "real_blur": 40,
+    "real_live": 55,
+    "edited_filtered": 40,
+    "filtered_edited": 110,
+    "ai_generated_live": 55,
+    "ai_generated_product": 90,
+}
 
-    real / real-blur / edited-filtered → 0 (photograph, including retouch)
-    ai-generated → 1
-    """
+
+def _human_label_from_name(stem: str) -> Optional[tuple[int, str]]:
+    """Map filename prefixes to (label, generator). More specific prefixes first."""
     name = stem.lower().replace(" ", "-").replace("_", "-")
+    if name.startswith("ai-generated-live") or name.startswith("aigenerated-live"):
+        return 1, "ai_generated_live"
+    if name.startswith("ai-generated-product") or name.startswith("aigenerated-product"):
+        return 1, "ai_generated_product"
+    if name.startswith("real-live") or name.startswith("reallive"):
+        return 0, "real_live"
     if name.startswith("ai-generated") or name.startswith("aigenerated"):
         return 1, "ai_generated"
+    if name.startswith("filtered-edited") or name.startswith("filterededited"):
+        return 0, "filtered_edited"
     if name.startswith("edited-filtered") or name.startswith("edited"):
         return 0, "edited_filtered"
     if name.startswith("real-blur") or name.startswith("realblur"):
@@ -251,7 +281,7 @@ def _human_label_from_name(stem: str) -> Optional[tuple[int, str]]:
     return None
 
 
-def load_human_labeled(root: Path) -> list[Sample]:
+def load_human_labeled(root: Path, soft_labels: bool = True) -> list[Sample]:
     """Load the user-labeled folder (`real*.jpeg`, `ai-generated*.jpeg`, ...)."""
     if not root.is_dir():
         raise FileNotFoundError(
@@ -260,45 +290,135 @@ def load_human_labeled(root: Path) -> list[Sample]:
         )
     samples: list[Sample] = []
     unlabeled = 0
+    by_gen: dict[str, int] = {}
     for path in _iter_images(root):
         parsed = _human_label_from_name(path.stem)
         if parsed is None:
             unlabeled += 1
             continue
         label, generator = parsed
-        samples.append(Sample(path=path, label=label, source="human", generator=generator))
+        target = _HUMAN_SOFT_TARGET.get(generator, float(label)) if soft_labels else float(label)
+        samples.append(
+            Sample(
+                path=path,
+                label=label,
+                source="human",
+                generator=generator,
+                target=target,
+            )
+        )
+        by_gen[generator] = by_gen.get(generator, 0) + 1
     if not samples:
         raise FileNotFoundError(
             f"No labeled images under {root} (unlabeled={unlabeled}). "
-            "Name files real*, real-blur*, edited-filtered*, or ai-generated*."
+            "Name files real*, real-live*, real-blur*, edited-filtered*, filtered_edited*, "
+            "ai-generated*, ai-generated_live*, or ai-generated_product*."
         )
     print(
         f"[human] loaded={len(samples)} unlabeled={unlabeled} "
         f"real={sum(1 for s in samples if s.label == 0)} "
-        f"ai={sum(1 for s in samples if s.label == 1)}"
+        f"ai={sum(1 for s in samples if s.label == 1)} "
+        f"by_generator={by_gen}"
     )
     return samples
 
 
-def _split_human(samples: list[Sample], split: str, val_fraction: float, seed: int) -> list[Sample]:
-    """Hold out a small val slice; the rest is train. Not used as test."""
+def load_all_human(cfg: dict[str, Any], soft_labels: bool = True) -> list[Sample]:
+    """Merge labeled files from `paths.human` plus optional `paths.human_extra`."""
+    roots: list[Path] = []
+    try:
+        roots.append(resolve_path(cfg, "human"))
+    except (KeyError, TypeError):
+        pass
+    extra = (cfg.get("paths") or {}).get("human_extra")
+    if extra:
+        items = extra if isinstance(extra, list) else [extra]
+        for raw in items:
+            p = Path(raw)
+            if not p.is_absolute():
+                p = project_root() / p
+            roots.append(p)
+    seen: set[Path] = set()
+    out: list[Sample] = []
+    for root in roots:
+        if not root.is_dir():
+            continue
+        try:
+            part = load_human_labeled(root, soft_labels=soft_labels)
+        except FileNotFoundError:
+            continue
+        for sample in part:
+            key = sample.path.resolve() if sample.path else None
+            if key is None or key in seen:
+                continue
+            seen.add(key)
+            out.append(sample)
+    if not out:
+        raise FileNotFoundError("No human-labeled images found under paths.human / human_extra.")
+    print(f"[human] merged unique={len(out)} folders={len(roots)}")
+    return out
+
+
+# Scarce new types: keep unique files in train so the visual pattern is learned.
+_TRAIN_PRIORITY_GENS = {"ai_generated_live", "ai_generated_product", "real_live"}
+
+
+def _split_human(
+    samples: list[Sample],
+    split: str,
+    val_fraction: float,
+    seed: int,
+    test_fraction: float = 0.0,
+) -> list[Sample]:
+    """Stratified train/val/(optional test) split by filename-prefix generator."""
     rng = random.Random(seed)
     by_gen: dict[str, list[Sample]] = {}
     for sample in samples:
         by_gen.setdefault(sample.generator or "other", []).append(sample)
     train: list[Sample] = []
     val: list[Sample] = []
-    for bucket in by_gen.values():
+    test: list[Sample] = []
+    for gen, bucket in by_gen.items():
         shuffled = bucket[:]
         rng.shuffle(shuffled)
-        n_val = max(1, int(round(len(shuffled) * val_fraction))) if len(shuffled) >= 4 else 0
-        val.extend(shuffled[:n_val])
-        train.extend(shuffled[n_val:])
+        n = len(shuffled)
+        if gen in _TRAIN_PRIORITY_GENS:
+            n_test = 0
+            n_val = 1 if n >= 12 else 0
+        else:
+            n_test = max(1, int(round(n * test_fraction))) if test_fraction > 0 and n >= 6 else 0
+            remain = n - n_test
+            n_val = max(1, int(round(remain * val_fraction))) if remain >= 4 else 0
+            if n_test + n_val >= n:
+                n_val = max(0, n - n_test - 1)
+        test.extend(shuffled[:n_test])
+        val.extend(shuffled[n_test : n_test + n_val])
+        train.extend(shuffled[n_test + n_val :])
     rng.shuffle(train)
     rng.shuffle(val)
-    if split == "test":
-        return []
-    return val if split == "val" else train
+    rng.shuffle(test)
+    return {"train": train, "val": val, "test": test}.get(split, train)
+
+
+def _balance_rare_generators(samples: list[Sample], max_factor: int = 8, seed: int = 0) -> list[Sample]:
+    """Repeat scarce / easily-confused groups so they are not drowned by other stills."""
+    by_gen: dict[str, list[Sample]] = {}
+    for sample in samples:
+        by_gen.setdefault(sample.generator or "other", []).append(sample)
+    if not by_gen:
+        return samples
+    out: list[Sample] = []
+    for gen, bucket in by_gen.items():
+        n = max(len(bucket), 1)
+        want = int(_HUMAN_MIN_TRAIN.get(gen, n))
+        cap = 10 if gen in _TRAIN_PRIORITY_GENS else max_factor
+        factor = max(1, int(round(want / n))) if want > n else 1
+        factor = min(cap, factor)
+        out.extend(bucket * factor)
+    rng = random.Random(seed)
+    rng.shuffle(out)
+    print(f"[human] rare-class balance unique={len(samples)} -> {len(out)}")
+    return out
 
 
 def load_wildfake(root: Path, exclude_tokens: list[str]) -> list[Sample]:
@@ -406,6 +526,16 @@ def collect_samples(cfg: dict[str, Any], split: str) -> list[Sample]:
             )
         return load_sid_set_local(root, split, include_tampered)
 
+    soft_human = bool(cfg["dataset"].get("human_soft_labels", True))
+
+    if name == "human":
+        human_all = load_all_human(cfg, soft_labels=soft_human)
+        val_frac = float(cfg["dataset"].get("human_val_fraction", cfg["train"].get("val_fraction", 0.15)))
+        test_frac = float(cfg["dataset"].get("human_test_fraction", 0.15))
+        samples = _split_human(human_all, split, val_frac, seed + 7, test_fraction=test_frac)
+        if split == "train" and bool(cfg["dataset"].get("human_balance_rare", True)):
+            samples = _balance_rare_generators(samples, max_factor=8, seed=seed)
+        return _subsample(samples, max_samples, seed)
     if name == "cifake":
         # Official test split is held out. Val is carved from train so we never
         # tune on the test set.
@@ -456,10 +586,12 @@ def collect_samples(cfg: dict[str, Any], split: str) -> list[Sample]:
         except FileNotFoundError as exc:
             print(f"[data] skipping WildFake in combined: {exc}")
         try:
-            human_all = load_human_labeled(resolve_path(cfg, "human"))
-            val_frac = float(cfg["train"].get("val_fraction", 0.1))
-            human_part = _split_human(human_all, split, val_frac, seed + 7)
+            human_all = load_all_human(cfg, soft_labels=soft_human)
+            val_frac = float(cfg["dataset"].get("human_val_fraction", cfg["train"].get("val_fraction", 0.1)))
+            human_part = _split_human(human_all, split, val_frac, seed + 7, test_fraction=0.0)
             if split == "train":
+                if bool(cfg["dataset"].get("human_balance_rare", False)):
+                    human_part = _balance_rare_generators(human_part, max_factor=3, seed=seed)
                 factor = int(cfg["dataset"].get("human_oversample") or 1)
                 if factor > 1 and human_part:
                     print(
@@ -541,12 +673,13 @@ class AIGCImageDataset(Dataset):
         item = {
             "image": image,
             "label": sample.label,
+            "target": float(sample.target) if sample.target is not None else float(sample.label),
             "path": display_path,
             "source": sample.source,
             "generator": sample.generator or "",
         }
         if self.transform is not None:
-            item.update(self.transform(image))
+            item.update(self.transform(image, generator=sample.generator))
             item.pop("image", None)
         return item
 
@@ -600,6 +733,9 @@ def collate_batch(batch: list[dict[str, Any]]) -> dict[str, Any]:
         "pixel_values": torch.stack([b["pixel_values"] for b in batch]),
         "image_01": torch.stack([b["image_01"] for b in batch]),
         "label": torch.tensor([b["label"] for b in batch], dtype=torch.float32),
+        "target": torch.tensor(
+            [b.get("target", b["label"]) for b in batch], dtype=torch.float32
+        ),
         "path": [b["path"] for b in batch],
         "generator": [b.get("generator", "") for b in batch],
     }

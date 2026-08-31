@@ -8,18 +8,26 @@ paths:
   sid_set: data/raw/sid_set
   wildfake: data/raw/wildfake
   human: train images
+  # Extra labeled stills (ai-generated_live / real_live / ai-generated_product).
+  human_extra: test-images
   output_dir: outputs
   checkpoint: outputs/best.pt
 
 dataset:
-  # cifake | sid_set | wildfake | combined
-  name: combined
+  # cifake | sid_set | wildfake | combined | human
+  name: human
   # CIFAKE is 32x32. In combined mode, cap it so high-res SID_Set photos
   # (ordinary camera stills) are the majority of the "real" class.
   combined_cifake_max_per_class: 300
-  # Repeat each human-labeled photo this many times so 48 images are not
-  # drowned by SID_Set. Labels come from the filename prefix.
-  human_oversample: 12
+  # Repeat each human-labeled photo this many times so they are not
+  # drowned by SID_Set in combined mode. Labels come from the filename prefix.
+  human_oversample: 1
+  human_val_fraction: 0.15
+  human_test_fraction: 0.15
+  # Map edited/filtered photos to ~0.5 so they land in filters_or_edited.
+  human_soft_labels: true
+  # Repeat scarce prefixes (real-blur, edited-filtered) up to 3x in train.
+  human_balance_rare: true
   image_size: 224
   # When the source image is larger than image_size, crop instead of downsampling
   # so high-frequency generator artifacts are not destroyed.
@@ -38,43 +46,41 @@ dataset:
 
 model:
   clip_name: openai/clip-vit-base-patch32
-  # false = freeze all CLIP weights. Fine-tuning the last block on CIFAKE
-  # made ordinary photographs look "not real" (high false-positive rate).
-  freeze_except_last_block: false
+  # true = adapt the last CLIP block on the 284 human photos. Frozen CLIP
+  # under-called AI on this set; CIFAKE-only fine-tunes were the FP risk.
+  freeze_except_last_block: true
   use_frequency_branch: true
-  dropout: 0.3
+  dropout: 0.4
   aux_loss_weight: 0.3
 
 train:
-  epochs: 3
+  epochs: 16
   batch_size: 8
   lr: 1.0e-4
-  weight_decay: 0.01
+  weight_decay: 0.05
   num_workers: 0
   max_samples: null
-  val_fraction: 0.1
-  # Penalize calling a real photo AI more than missing an AI image.
-  # 1.0 = balanced BCE. >1 shifts the operating point toward fewer false positives.
-  real_class_weight: 2.5
+  val_fraction: 0.15
+  # 1.3 = slight extra cost for calling a camera photo AI.
+  real_class_weight: 1.3
 
 thresholds:
-  # Recalibrated after human-labeled fine-tune. See outputs/calibration.json.
-  # likely_real < 0.28; filters_or_edited 0.28-0.70; likely_ai > 0.70.
+  # After edited/blur fine-tune: keep edited photos out of likely_ai.
   likely_real_max: 0.28
-  likely_ai_min: 0.70
-  logit_bias: 0.45
-  temperature: 0.9
+  likely_ai_min: 0.74
+  logit_bias: -0.25
+  temperature: 0.75
 
 augmentations:
   enabled: true
   # Probability of running the augmentation stack on a given training image.
-  apply_prob: 0.7
+  apply_prob: 0.85
   jpeg:
     enabled: true
     qualities: [90, 70, 50, 30]
   blur:
     enabled: true
-    sigmas: [0.5, 1.0, 2.0]
+    sigmas: [0.5, 1.0, 2.0, 3.5]
   resize:
     enabled: true
     scales: [0.5, 0.25]

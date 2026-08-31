@@ -409,8 +409,8 @@ def main() -> None:
         "error_counts": {"n_fp": err.get("n_fp"), "n_fn": err.get("n_fn")},
     }
     (out_dir / "eval_summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    print(f"charts → {chart_dir}")
-    print(f"error analysis → {out_dir / 'error_analysis.md'}")
+    print(f"charts -> {chart_dir}")
+    print(f"error analysis -> {out_dir / 'error_analysis.md'}")
 
 
 if __name__ == "__main__":

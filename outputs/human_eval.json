@@ -1,0 +1,46 @@
+{
+  "n": 43,
+  "n_real": 27,
+  "n_ai": 16,
+  "auc": 0.9837962962962963,
+  "binary_acc_at_0.5": 0.8837209302325582,
+  "mean_pred_real": 0.32197364005777573,
+  "mean_pred_ai": 0.9285372160375118,
+  "three_way_acc": 0.6511627906976745,
+  "by_generator": {
+    "ai_generated": {
+      "n": 16,
+      "acc": 0.9375
+    },
+    "edited_filtered": {
+      "n": 2,
+      "acc": 1.0
+    },
+    "filtered_edited": {
+      "n": 10,
+      "acc": 0.3
+    },
+    "real": {
+      "n": 14,
+      "acc": 0.5714285714285714
+    },
+    "real_blur": {
+      "n": 1,
+      "acc": 0.0
+    }
+  },
+  "confusion": {
+    "likely_real->likely_real": 8,
+    "likely_ai_generated->likely_ai_generated": 15,
+    "likely_real->filters_or_edited": 7,
+    "filters_or_edited->filters_or_edited": 5,
+    "filters_or_edited->likely_real": 6,
+    "likely_ai_generated->filters_or_edited": 1,
+    "filters_or_edited->likely_ai_generated": 1
+  },
+  "split": "test",
+  "thresholds": {
+    "likely_real_max": 0.28,
+    "likely_ai_min": 0.74
+  }
+}

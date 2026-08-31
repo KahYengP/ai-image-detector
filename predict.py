@@ -24,7 +24,44 @@ from data.augmentations import ModelTransform
 from models.artifacts import score_artifacts, sigmoid
 from models.explain import explain_record
 from models.fusion import AIGCDetector
-from utils import get_device, list_images, load_config, project_root
+from utils import IMAGE_EXTS, get_device, list_images, load_config, project_root
+
+_DEFAULT_IMAGE_DIRS = ("test-images", "train images", "images")
+_RESULT_FROM_TIER = {
+    "likely_real": "real",
+    "likely_ai_generated": "AI",
+    "filters_or_edited": "filtered_or_edited",
+}
+
+
+def resolve_image_dir(raw: str | None) -> Path:
+    """Turn --image-dir into a real folder. Default: `test-images` in the repo."""
+    root = project_root()
+    if raw:
+        folder = Path(raw)
+        if not folder.is_absolute():
+            folder = root / folder
+        if folder.is_dir():
+            return folder
+        examples = [name for name in _DEFAULT_IMAGE_DIRS if (root / name).is_dir()]
+        hint = ""
+        if examples:
+            hint = f'\nExample: python predict.py --image-dir "{examples[0]}"'
+        raise SystemExit(f"Image directory not found: {raw}{hint}")
+
+    for name in _DEFAULT_IMAGE_DIRS:
+        candidate = root / name
+        if not candidate.is_dir():
+            continue
+        has_images = any(
+            p.is_file() and p.suffix.lower() in IMAGE_EXTS for p in candidate.iterdir()
+        )
+        if has_images:
+            return candidate
+    raise SystemExit(
+        "No image folder given. Pass one with --image-dir, for example:\n"
+        "  python predict.py --image-dir test-images"
+    )
 
 
 def load_checkpoint(path: Path, device: torch.device) -> tuple[AIGCDetector, dict]:
@@ -47,6 +84,7 @@ def predict_image(
     device: torch.device,
     thresholds: dict,
     clip_name: str = "openai/clip-vit-base-patch32",
+    image_dir: Path | None = None,
 ) -> dict:
     with Image.open(image_path) as im:
         rgb = im.convert("RGB")
@@ -59,7 +97,16 @@ def predict_image(
     frequency = None if freq_t is None else float(freq_t.item())
     cues = score_artifacts(rgb, path=image_path, clip_name=clip_name, device=device)
     p_model = float(max(1e-6, min(1.0 - 1e-6, float(out["pred"].item()))))
-    z = float(np.log(p_model / (1.0 - p_model))) + float(cues.get("logit_boost") or 0.0)
+    boost = float(cues.get("logit_boost") or 0.0)
+    fired = list(cues.get("fired") or [])
+    # CLIP live/product/skin cues must not flip a photographic call to likely_ai.
+    hard_tells = {"garbled_text", "provenance", "hands"}
+    if p_model < 0.52 and not (hard_tells & set(fired)):
+        boost = 0.0
+        fired = []
+        cues["logit_boost"] = 0.0
+        cues["fired"] = []
+    z = float(np.log(p_model / (1.0 - p_model))) + boost
     pred = sigmoid(z)
     extra = explain_record(
         pred,
@@ -69,8 +116,15 @@ def predict_image(
         likely_ai_min=float(thresholds.get("likely_ai_min", 0.6)),
         fired=cues.get("fired") or [],
     )
+    display = image_path.name
+    if image_dir is not None:
+        try:
+            display = str(image_path.resolve().relative_to(Path(image_dir).resolve()))
+        except ValueError:
+            display = image_path.name
     return {
-        "image_path": str(image_path),
+        "image_path": display.replace("\\", "/"),
+        "result": _RESULT_FROM_TIER.get(extra["tier"], extra["tier"]),
         "pred": round(pred, 6),
         "semantic_score": round(semantic, 6),
         "frequency_score": None if frequency is None else round(frequency, 6),
@@ -89,7 +143,11 @@ def predict_image(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run AIGC detection on a folder of images.")
-    parser.add_argument("--image-dir", required=True, help="Directory of images (recursed).")
+    parser.add_argument(
+        "--image-dir",
+        default=None,
+        help='Directory of images (recursed). Defaults to "test-images".',
+    )
     parser.add_argument("--output", default="outputs/predictions.json")
     parser.add_argument("--checkpoint", default=None)
     parser.add_argument("--config", default=None)
@@ -100,6 +158,11 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     cfg = load_config(args.config)
+    image_dir = resolve_image_dir(args.image_dir)
+    images = list_images(image_dir)
+    if not images:
+        raise SystemExit(f"No images found under {image_dir}")
+
     ckpt = Path(args.checkpoint) if args.checkpoint else Path(cfg["paths"]["checkpoint"])
     if not ckpt.is_absolute():
         ckpt = project_root() / ckpt
@@ -107,23 +170,32 @@ def main() -> None:
         raise SystemExit(f"Checkpoint not found: {ckpt}. Train first with python train.py")
 
     device = get_device(args.device)
+    print(f"checkpoint={ckpt}")
+    print(f"scoring {len(images)} images from {image_dir}")
     model, saved_cfg = load_checkpoint(ckpt, device)
     transform = ModelTransform(saved_cfg, augment=False)
     thresholds = saved_cfg.get("thresholds") or cfg.get("thresholds") or {}
     clip_name = saved_cfg.get("model", {}).get("clip_name") or "openai/clip-vit-base-patch32"
 
-    images = list_images(args.image_dir)
-    if not images:
-        raise SystemExit(f"No images found under {args.image_dir}")
-
     records = []
     for path in tqdm(images, desc="predict"):
         try:
-            records.append(predict_image(model, transform, path, device, thresholds, clip_name=clip_name))
+            records.append(
+                predict_image(
+                    model,
+                    transform,
+                    path,
+                    device,
+                    thresholds,
+                    clip_name=clip_name,
+                    image_dir=image_dir,
+                )
+            )
         except Exception as exc:  # keep going on a single corrupt file
             records.append(
                 {
-                    "image_path": str(path),
+                    "image_path": path.name,
+                    "result": "filtered_or_edited",
                     "pred": None,
                     "semantic_score": None,
                     "frequency_score": None,

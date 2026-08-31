@@ -66,27 +66,51 @@ _C2PA_TOKENS = (
 
 _AI_PROMPTS: list[tuple[str, str]] = [
     ("hands", "a picture of a hand with extra fingers or melted deformed fingers"),
-    ("garbled_text", "an image with scrambled fake letters and unreadable background text"),
+    (
+        "garbled_text",
+        "nonsensical misspelled letters, warped brand logos, unreadable signs, "
+        "or a watch face with scrambled numerals that are not real text",
+    ),
     ("accessories", "a face with mismatched earrings or mismatched glasses"),
     ("background", "a photo where background objects merge, bend, or make no sense"),
     ("plastic_skin", "a portrait with plastic doll skin, poreless and overly perfect lighting"),
     ("ai_render", "an AI generated synthetic image"),
     ("watermark", "a generated image with a small logo watermark in the corner"),
 ]
+# Scene probes are scored separately so they do not inflate overall_ai on
+# real livestreams or real catalog product photos.
+_SCENE_PROMPTS: list[tuple[str, str]] = [
+    (
+        "ai_product",
+        "an AI generated CGI product render with uniform fake leather or fabric, "
+        "melted or missing stitching, simplified hardware, and too-perfect lighting, "
+        "not a retouched camera photo of a real object",
+    ),
+    (
+        "fake_live",
+        "a fake AI livestream shopping still of a host with waxy plastic skin, "
+        "simplified indoor set, and a slightly unreal floating look",
+    ),
+]
 _REAL_PROMPTS = (
     "a real photograph taken with a camera",
     "a candid photo of a real object or person",
     "a natural photograph with real lighting and texture",
-    "a real product photograph shot in a store or studio",
+    "a real product photograph of a physical object with natural material texture",
+    "a retouched catalog photo of a real product with readable brand text and physical wrinkles",
+    "a real live-shopping phone photo of a person holding real products",
+    "a photograph with correctly spelled readable text on packaging, signs, or clothing",
 )
 
 # How hard each CLIP cue can push the fused logit. Positive only.
 _CUE_WEIGHTS = {
     "hands": 1.6,
-    "garbled_text": 1.8,
+    "garbled_text": 2.4,
     "accessories": 1.4,
     "background": 1.1,
     "plastic_skin": 1.3,
+    "ai_product": 2.2,
+    "fake_live": 1.8,
     "ai_render": 1.2,
     "watermark": 1.2,
     "skin_texture": 1.0,
@@ -150,6 +174,15 @@ def provenance_cues(path: Optional[Path], image: Image.Image) -> dict[str, Any]:
     }
 
 
+def edge_energy(image: Image.Image) -> float:
+    """Mean gradient energy. Low values mean optical / motion blur."""
+    gray = np.asarray(image.convert("L"), dtype=np.float32)
+    if gray.size < 64:
+        return 0.0
+    gy, gx = np.gradient(gray)
+    return float((gx * gx + gy * gy).mean())
+
+
 def skin_oversmooth_score(image: Image.Image) -> float:
     """High when large skin-colored regions have almost no pore/edge texture."""
     arr = np.asarray(image.convert("RGB"), dtype=np.float32)
@@ -187,7 +220,11 @@ def clip_artifact_scores(
 ) -> dict[str, float]:
     """P(cue) for each visual tell vs a real-photograph anchor."""
     if min(image.size) < _MIN_SIDE_FOR_CLIP:
-        return {**{name: 0.0 for name, _ in _AI_PROMPTS}, "overall_ai": 0.0}
+        return {
+            **{name: 0.0 for name, _ in _AI_PROMPTS},
+            **{name: 0.0 for name, _ in _SCENE_PROMPTS},
+            "overall_ai": 0.0,
+        }
     model, processor = _clip_bundle(clip_name, str(device))
     texts = [p for _, p in _AI_PROMPTS] + list(_REAL_PROMPTS)
     inputs = processor(text=texts, images=image.convert("RGB"), return_tensors="pt", padding=True)
@@ -200,6 +237,17 @@ def clip_artifact_scores(
     for i, (name, _) in enumerate(_AI_PROMPTS):
         out[name] = float(probs[i].item())
     out["overall_ai"] = float(probs[:n_ai].sum().item())
+    # Scene probes vs real anchors only — not mixed into overall_ai.
+    scene_texts = [p for _, p in _SCENE_PROMPTS] + list(_REAL_PROMPTS)
+    scene_inputs = processor(
+        text=scene_texts, images=image.convert("RGB"), return_tensors="pt", padding=True
+    )
+    scene_inputs = {k: v.to(device) if hasattr(v, "to") else v for k, v in scene_inputs.items()}
+    with torch.no_grad():
+        scene_logits = model(**scene_inputs).logits_per_image[0]
+        scene_probs = torch.softmax(scene_logits, dim=0)
+    for i, (name, _) in enumerate(_SCENE_PROMPTS):
+        out[name] = float(scene_probs[i].item())
     return out
 
 
@@ -222,19 +270,52 @@ def score_artifacts(
     if prov["provenance_ai"]:
         boost += _CUE_WEIGHTS["provenance"]
         fired.append("provenance")
-    # Only credit specific visual tells when the image also looks more AI than real overall.
+    # Optical blur and beauty-filter smoothness are not AIGC by themselves.
+    blurry = edge_energy(image) < 28.0
     allow_visual = overall_ai >= _OVERALL_AI_FIRE
     for name, prob in visual.items():
         if name == "skin_texture":
+            if blurry or not allow_visual:
+                continue
             weight = _CUE_WEIGHTS.get(name, 0.0)
-            excess = max(0.0, float(prob) - 0.45)
+            excess = max(0.0, float(prob) - 0.55)
             if excess > 0 and weight > 0:
-                boost += weight * excess / 0.55
+                boost += weight * excess / 0.45
+                fired.append(name)
+            continue
+        if name in {"plastic_skin"} and blurry:
+            continue
+        if name == "garbled_text":
+            # Weird / unreadable text is a primary AI tell; do not require overall_ai.
+            weight = _CUE_WEIGHTS.get(name, 0.0)
+            excess = max(0.0, float(prob) - 0.10)
+            if excess > 0 and weight > 0:
+                boost += weight * min(1.0, excess / 0.22)
+                fired.append(name)
+            continue
+        if name == "ai_product":
+            # Only boost when unreadable branding/text supports CGI vs a real catalog shot.
+            garbled = float(visual.get("garbled_text") or 0.0)
+            if garbled < 0.08:
+                continue
+            weight = _CUE_WEIGHTS.get(name, 0.0)
+            excess = max(0.0, float(prob) - 0.18)
+            if excess > 0 and weight > 0:
+                boost += weight * min(1.0, excess / 0.22)
+                fired.append(name)
+            continue
+        if name == "fake_live":
+            # Real livestreams match "live shopping" too easily. Require a fake-skin tell.
+            plastic = float(visual.get("plastic_skin") or 0.0)
+            if plastic < 0.08:
+                continue
+            weight = _CUE_WEIGHTS.get(name, 0.0)
+            excess = max(0.0, float(prob) - 0.20)
+            if excess > 0 and weight > 0:
+                boost += weight * min(1.0, excess / 0.25)
                 fired.append(name)
             continue
         if not allow_visual:
-            continue
-        if name == "garbled_text" and (overall_ai < 0.72 or float(prob) < 0.30):
             continue
         weight = _CUE_WEIGHTS.get(name, 0.0)
         excess = max(0.0, float(prob) - _CUE_FIRE)
@@ -244,7 +325,7 @@ def score_artifacts(
     visual["overall_ai"] = round(overall_ai, 4)
     # Keep visual cues from dominating a clean camera photo.
     if not prov["provenance_ai"]:
-        boost = min(boost, 2.6)
+        boost = min(boost, 3.0)
 
     return {
         "provenance_ai": prov["provenance_ai"],

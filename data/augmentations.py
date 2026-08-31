@@ -105,6 +105,33 @@ def resize_or_crop(
     return image.resize((size, size), Image.Resampling.BICUBIC)
 
 
+def motion_blur(image: Image.Image, amount: int = 8) -> Image.Image:
+    """One-axis smear. Analog: handshake / subject motion, not AI bokeh."""
+    w, h = image.size
+    amount = max(2, int(amount))
+    if random.random() < 0.5:
+        small = image.resize((max(1, w // amount), h), Image.Resampling.BILINEAR)
+    else:
+        small = image.resize((w, max(1, h // amount)), Image.Resampling.BILINEAR)
+    return small.resize((w, h), Image.Resampling.BILINEAR)
+
+
+def apply_photo_kind_augmentations(image: Image.Image, generator: Optional[str]) -> Image.Image:
+    """Extra blur / filter jitter on camera photos so those cues are not treated as AIGC."""
+    kind = (generator or "").lower()
+    is_photo = kind in {"real", "real_blur", "real_live", "edited_filtered", "filtered_edited"}
+    is_edited = kind in {"edited_filtered", "filtered_edited"}
+    is_blur = kind in {"real_blur"}
+    if is_photo and random.random() < (0.7 if is_blur else 0.35):
+        if random.random() < 0.5:
+            image = gaussian_blur(image, random.choice([1.0, 2.0, 3.5]))
+        else:
+            image = motion_blur(image, random.choice([4, 8, 12]))
+    if is_edited and random.random() < 0.45:
+        image = color_jitter(image, brightness=0.18, contrast=0.22, saturation=0.28)
+    return image
+
+
 def apply_training_augmentations(image: Image.Image, aug_cfg: dict[str, Any]) -> Image.Image:
     """Apply a random subset of enabled transforms. Each family is independently skippable."""
     if not aug_cfg.get("enabled", True):
@@ -215,13 +242,19 @@ class ModelTransform:
         self.size = int(cfg["dataset"]["image_size"])
         self.prefer_crop = bool(cfg["dataset"].get("prefer_crop", True))
 
-    def __call__(self, image: Image.Image) -> dict[str, torch.Tensor]:
+    def __call__(self, image: Image.Image, generator: Optional[str] = None) -> dict[str, torch.Tensor]:
         image = image.convert("RGB")
         if self.eval_transform is not None:
             name, severity = self.eval_transform
             image = apply_named_transform(image, name, severity)
         elif self.augment:
-            image = apply_training_augmentations(image, self.cfg.get("augmentations") or {})
+            if random.random() < 0.5:
+                image = image.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            image = apply_photo_kind_augmentations(image, generator)
+            kind = (generator or "").lower()
+            # Blur/JPEG would erase CGI sheen and plastic-skin tells.
+            if kind not in {"ai_generated_product", "ai_generated_live"}:
+                image = apply_training_augmentations(image, self.cfg.get("augmentations") or {})
         image = resize_or_crop(
             image,
             size=self.size,
