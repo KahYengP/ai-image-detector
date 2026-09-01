@@ -86,7 +86,7 @@ python web/server.py
 In a browser open **http://127.0.0.1:8765**
 
 - Drag in one or more JPG / PNG / WEBP / HEIC files, or click **Load Sample Test Batch**
-- Click **Analyze Images**
+- Click **Analyze Images**. Scores are saved to **`outputs/predictions.json`** (`image_path` and `pred` per image).
 - Use **Original / Heatmap Scan / Noise Pattern / Split View** on the results page. Heatmap and noise are CSS inspection filters (`contrast` / `hue-rotate` / inverted grayscale), not Grad-CAM. Orange **!** markers are high local-contrast patches; hover them for a short explanation.
 
 Stop the server with `Ctrl+C`.
@@ -128,15 +128,53 @@ The fused output `pred` is **P(AI)** in `[0, 1]`. Three display classes (also `r
 
 The website maps those scores into a 3-way probability breakdown, a confidence gauge, visual-signal bars, and rule-based explanations (semantic vs frequency plus CLIP / C2PA artifact cues). `pred` is a trained sigmoid, not a calibrated probability.
 
+Analyze in the website also writes the same JSON to **`outputs/predictions.json`**.
+
 ---
 
-## CLI inference
+## CLI inference (required JSON output)
+
+The core scoring script is `predict.py`. It takes an **image directory** and writes a **JSON file** with one object per image. Each object includes at least:
+
+- `image_path` — filename / relative path of the image
+- `pred` — confidence that the image is AIGC-generated, in `[0, 1]` (higher = more likely AI)
+
+Default output path:
+
+**`outputs/predictions.json`**
+
+**Windows**
+
+```bat
+.venv\Scripts\activate
+python predict.py --image-dir "train images" --output outputs\predictions.json
+```
+
+**macOS / Linux**
 
 ```bash
+source .venv/bin/activate
 python predict.py --image-dir path/to/images --output outputs/predictions.json
 ```
 
-Defaults to `test-images` if present, else `train images`. Each JSON record includes `image_path`, `result`, `pred`, `semantic_score`, `frequency_score`, `explanation`, `tier`, and `artifact_cues`.
+If you omit `--image-dir`, it defaults to `test-images` if that folder exists, otherwise `train images`. If you omit `--output`, it still writes **`outputs/predictions.json`**.
+
+Example shape (extra fields are included for the website; graders can use `image_path` and `pred`):
+
+```json
+[
+  {
+    "image_path": "example.jpg",
+    "pred": 0.166825
+  }
+]
+```
+
+The full record also has `result`, `semantic_score`, `frequency_score`, `explanation`, `tier`, and `artifact_cues`. Open the file at:
+
+```text
+ai-image-detector/outputs/predictions.json
+```
 
 ---
 
@@ -205,7 +243,7 @@ train images/            # labeled stills (filename prefixes)
 test-images/             # optional extra labeled stills
 outputs/
   best.pt                # trained weights — download from Google Drive (not in git)
-  predictions.json       # last CLI / web run
+  predictions.json       # JSON list of {image_path, pred, ...} from CLI / web Analyze
 data/                    # loaders + augmentations
 models/                  # CLIP, FFT CNN, fusion, explanations
 scripts/                 # eval helpers, smoke dataset, downloads
