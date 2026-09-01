@@ -157,19 +157,6 @@ source .venv/bin/activate
 python predict.py --image-dir path/to/images --output outputs/predictions.json
 ```
 
-If you omit `--image-dir`, it defaults to `test-images` if that folder exists, otherwise `train images`. If you omit `--output`, it still writes **`outputs/predictions.json`**.
-
-Example shape (extra fields are included for the website; graders can use `image_path` and `pred`):
-
-```json
-[
-  {
-    "image_path": "example.jpg",
-    "pred": 0.166825
-  }
-]
-```
-
 The full record also has `result`, `semantic_score`, `frequency_score`, `explanation`, `tier`, and `artifact_cues`. Open the file at:
 
 ```text
