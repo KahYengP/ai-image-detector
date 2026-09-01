@@ -132,6 +132,37 @@ Analyze in the website also writes the same JSON to **`outputs/predictions.json`
 
 ---
 
+## Clean vs transformed performance
+
+Hold-out test set (**n = 43**: 27 photographic, 16 AI). Metric is binary **ROC AUC** (AI vs photographic). Each transformed row applies that degradation to the **same** 43 images.
+
+| Condition | What changed | AUC |
+| --- | --- | --- |
+| **Clean** | no extra transform | **0.961** |
+| JPEG q90 / q70 / q50 | mild–medium compression | 0.956 / 0.951 / 0.949 |
+| JPEG q30 | heavy compression | 0.914 |
+| Blur σ=0.5 / 1.0 / 2.0 | soft capture | 0.954 / 0.965 / 0.958 |
+| Resize 0.5× / 0.25× | small pixels / thumbnail | 0.938 / 0.938 |
+| Noise σ=0.02 / 0.05 / 0.10 | sensor grain | 0.951 / 0.924 / **0.859** |
+| Color jitter ±20% | exposure / saturation shift | 0.963 |
+| Center crop 80% | zoom / recomposition | 0.951 |
+| **AUC_robust** | mean of all transformed rows | **0.941** |
+| **Final score** | `0.50 × AUC_clean + 0.50 × AUC_robust` | **0.951** |
+
+Most social-style transforms (JPEG, blur, resize, crop, mild noise) stay close to clean. The largest drop is **heavy Gaussian noise (σ=0.10)**.
+
+![AUC by condition: clean (blue) vs JPEG, blur, resize, noise, color jitter, crop](outputs/charts/robustness_bars.png)
+
+![ROC: clean AUC 0.961 vs pooled transformed images](outputs/charts/roc_overlay.png)
+
+Full numeric table: [`outputs/robustness_table.md`](outputs/robustness_table.md). Reproduce:
+
+```bat
+python evaluate.py
+```
+
+---
+
 ## CLI inference (required JSON output)
 
 The core scoring script is `predict.py`. It takes an **image directory** and writes a **JSON file** with one object per image. Each object includes at least:
@@ -192,13 +223,13 @@ JPEG class-balance check (codec shortcut risk):
 python -m data.balance_check
 ```
 
-Robustness table and charts (after a checkpoint exists):
+To regenerate the clean-vs-transformed table and charts after a new checkpoint:
 
 ```bash
 python evaluate.py
 ```
 
-Writes `outputs/robustness_table.md`, `outputs/error_analysis.md`, and `outputs/charts/`.
+Writes `outputs/robustness_table.md`, `outputs/error_analysis.md`, and `outputs/charts/` (`robustness_bars.png`, `roc_overlay.png`).
 
 ---
 
