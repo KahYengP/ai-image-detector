@@ -163,6 +163,46 @@ python evaluate.py
 
 ---
 
+## Error analysis
+
+Hold-out **clean** test set, **n = 43**. Counts below use a binary cut at `pred = 0.5` (photographic `y = 0` vs AI `y = 1`), which is how ROC AUC is computed. The website’s 0.28 / 0.74 bands are a separate display policy.
+
+| Error | Count | Meaning |
+| --- | --- | --- |
+| False positives | **5** | photographic / edited stills with `pred ≥ 0.5` |
+| False negatives | **2** | AI stills with `pred < 0.5` |
+
+### Representative false positives (camera or edited stills scored too high)
+
+| Image | `pred` | What happened |
+| --- | --- | --- |
+| `filtered_edited7-.png` | 0.859 | Beauty-filter / retouch still called **AI**. Semantic branch (0.84) dominates. |
+| `real053.jpeg` | 0.781 | A **real** photo; both branches agree it looks synthetic. Hard FP. |
+| `edited-filtered4.jpeg` | 0.615 | Edited photo; three-way label is `filters_or_edited`, not full AIGC. |
+| `real057.jpeg` | 0.593 | Real photo in the middle band (`filters_or_edited` on the website). |
+
+Typical pattern: **filters and unusual real photos** look like CLIP “render” cues. Raising `likely_ai_min` to **0.74** keeps the 0.59–0.62 cases out of the AI class; it does not fix `real053` (0.78).
+
+### Representative false negatives (AI scored too low)
+
+| Image | `pred` | What happened |
+| --- | --- | --- |
+| `ai-generated76.png` | 0.365 | AI parked in `filters_or_edited` (not `likely_real`; that needs `pred < 0.28`). |
+| `ai-generated4.jpeg` | 0.473 | Same: under 0.5 binary, a miss; on the website it is the middle band, not “real”. |
+
+Neither FN is a clean camera-photo call. The miss is **under-calling full AIGC**, not labeling AI as authentic.
+
+### Trade-offs
+
+- **Frequency vs JPEG/blur.** The FFT branch helps when generator upsampling is still visible. Heavy JPEG (q30) and blur flatten that spectrum, so more mass slides into `filters_or_edited`.
+- **Semantic vs unusual reals.** CLIP is stabler under crop, jitter, and resize, but it can fire on real photos that sit far from its pretraining look (`real053`).
+- **Middle band vs binary AUC.** The 0.28–0.74 band is a policy for filters / retouching / partial AI. It reduces “edited → AI” FPs at the cost of some true AI landing as edited instead of `likely_ai_generated`.
+- **`pred` is not a calibrated probability.** It is a trained sigmoid used for ranking (AUC) and for those two cutoffs.
+
+Full dump (copied example files + explanations): [`outputs/error_analysis.md`](outputs/error_analysis.md).
+
+---
+
 ## CLI inference (required JSON output)
 
 The core scoring script is `predict.py`. It takes an **image directory** and writes a **JSON file** with one object per image. Each object includes at least:
